@@ -17,9 +17,11 @@ export default function Bird() {
         <dt>Common Name:</dt>
         <dd>{bird.COMMONNAME}</dd>
       </dl>
-      {bird.EBIRD && (<a href={`https://ebird.org/species/${bird.EBIRD}`} target="_blank">eBird Link</a>)}
-
-      
+      {bird.EBIRD && (
+        <a href={`https://ebird.org/species/${bird.EBIRD}`} target="_blank">
+          eBird Link
+        </a>
+      )}
     </div>
   );
 }
