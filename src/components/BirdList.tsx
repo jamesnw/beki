@@ -8,8 +8,10 @@ function BirdList() {
       if (options.species && bird.SP) return false;
       return (
         bird.COMMONNAME.toLowerCase().includes(searchTerm) ||
-        bird.SPEC.toLowerCase().includes(searchTerm) ||
-        bird.SPEC6.toLowerCase().includes(searchTerm)
+        (options.codeType === "4" &&
+          bird.SPEC.toLowerCase().includes(searchTerm)) ||
+        (options.codeType === "6" &&
+          bird.SPEC6.toLowerCase().includes(searchTerm))
       );
     });
   };
