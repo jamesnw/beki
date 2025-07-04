@@ -1,13 +1,21 @@
 function Header() {
   return (
-    <nav class="nav-wrap split align-center" style="flex-wrap: wrap">
+    <nav class="nav-wrap split align-center margin-start-s margin-end-m">
       <strong>
         <a
-          class="logo link-subtle size-2xl font-secondary"
+          class="logo link-subtle size-2xl font-secondary flex"
           style="--color: var(--color-text-normal); --color-hover: var(--focus-ring-color);"
           href="/"
         >
-          <div class="split gap-4xs align-center">BEKI with the good hair</div>
+          <img
+            src="/logo.svg"
+            alt="BEKI Birdcode Logo"
+            width="32"
+            height="32"
+          />
+          <div class="split gap-4xs align-center">
+            BEKI <small>(Birdcode Easy Knowing Index)</small>
+          </div>
         </a>
       </strong>
       <div class="nav-menu" id="nav-menu">
@@ -15,6 +23,11 @@ function Header() {
           <li>
             <a class="link-subtle" href="/">
               Codes
+            </a>
+          </li>
+          <li>
+            <a class="link-subtle" href="/nfc">
+              NFC Groups
             </a>
           </li>
           <li>

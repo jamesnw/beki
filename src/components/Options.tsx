@@ -2,35 +2,37 @@ import { options, setOptions } from "../optionStore.ts";
 
 function Options() {
   return (
-    <div class="callout">
-      <label>
-        <input
-          type="checkbox"
-          checked={options.species}
-          onChange={(e) => setOptions("species", e.currentTarget.checked)}
-        />
-        Only show species
-      </label>
-      <label>
-        <input
-          type="radio"
-          name="codeType"
-          value="4"
-          checked={options.codeType === "4"}
-          onChange={(e) => setOptions("codeType", e.currentTarget.value as "4")}
-        />{" "}
-        4-letter
-      </label>
-      <label>
-        <input
-          type="radio"
-          name="codeType"
-          value="6"
-          checked={options.codeType === "6"}
-          onChange={(e) => setOptions("codeType", e.currentTarget.value as "6")}
-        />{" "}
-        6-letter
-      </label>
+    <div class="callout primary">
+      <div class="grid">
+        <label class="item-half sidecar">
+          <span>Code type</span>
+          <select
+            onChange={(e) =>
+              setOptions("codeType", e.currentTarget.value as "4")
+            }
+          >
+            <option value="4" selected={options.codeType === "4"}>
+              4-letter
+            </option>
+            <option value="6" selected={options.codeType === "6"}>
+              6-letter
+            </option>
+            <option value="ebird" selected={options.codeType === "ebird"}>
+              eBird
+            </option>
+          </select>
+        </label>
+        <div class="item-half">
+          <label>
+            <input
+              type="checkbox"
+              checked={options.species}
+              onChange={(e) => setOptions("species", e.currentTarget.checked)}
+            />
+            Only show species
+          </label>
+        </div>
+      </div>
       <label>
         Search:
         <input

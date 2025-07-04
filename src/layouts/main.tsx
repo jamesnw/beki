@@ -6,7 +6,9 @@ const Main = ({ children }: RouteSectionProps) => {
     <div class="container-2xl">
       <Header />
       <main>{children}</main>
-      <footer class="margin-start-6xl">By James</footer>
+      <footer class="margin-start-6xl">
+        By <a href="https://jamessw.com">James</a>.
+      </footer>
     </div>
   );
 };

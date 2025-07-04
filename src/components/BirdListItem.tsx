@@ -19,6 +19,9 @@ function BirdListItem(bird: BirdCode) {
         <Show when={codeType() === "6"}>
           <SearchMatch string={bird.SPEC6} />
         </Show>
+        <Show when={codeType() === "ebird"}>
+          <SearchMatch string={bird.EBIRD || "n/a"} />
+        </Show>
       </a>
     </li>
   );

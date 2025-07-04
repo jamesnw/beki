@@ -1,0 +1,52 @@
+/**
+	Kelp UI - Custom Theme
+	https://kelpui.com/docs/tools/theme-builder/?palette_cyan=%2300afc4_209.82_0.86&color_primary=cyan&element_links=primary&element_focus=primary
+*/
+@layer kelp.theme {
+  :where(:root) {
+    /* Color Palette */
+    --color-cyan-base: #00afc4;
+    --color-cyan-hue: 209.82;
+    --color-cyan-chroma: 0.86;
+  }
+
+  /* Light Theme (default) */
+  :where(:root),
+  .kelp-theme-light {
+    /* Fills & Borders */
+    --color-primary-fill-muted: var(--color-cyan-95);
+    --color-primary-fill-accent: var(--color-cyan-90);
+    --color-primary-fill-vivid: var(--color-cyan-50);
+    --color-primary-border-muted: var(--color-cyan-90);
+    --color-primary-border-accent: var(--color-cyan-80);
+    --color-primary-border-vivid: var(--color-cyan-60);
+    --color-primary-on-muted: var(--color-cyan-30);
+    --color-primary-on-accent: var(--color-cyan-20);
+    --color-primary-on-vivid: white;
+    --color-primary-outline: var(--color-cyan-50);
+
+    /* Links & Focus */
+    --color-text-link: var(--color-cyan-50);
+    --color-text-link-hover: var(--color-cyan-40);
+    --color-checked: var(--color-cyan-50);
+    --focus-ring-color: var(--color-cyan-50);
+  }
+
+  /* Dark Theme */
+  .kelp-theme-dark {
+    /* Fills & Borders */
+    --color-primary-fill-muted: var(--color-cyan-20);
+    --color-primary-fill-accent: var(--color-cyan-30);
+    --color-primary-border-muted: var(--color-cyan-30);
+    --color-primary-border-accent: var(--color-cyan-40);
+    --color-primary-on-muted: var(--color-cyan-95);
+    --color-primary-on-accent: var(--color-cyan-95);
+    --color-primary-outline: var(--color-cyan-70);
+
+    /* Links & Focus */
+    --color-text-link: var(--color-cyan-70);
+    --color-text-link-hover: var(--color-cyan-80);
+    --color-checked: var(--color-cyan-60);
+    --focus-ring-color: var(--color-cyan-60);
+  }
+}

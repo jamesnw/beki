@@ -1,4 +1,5 @@
 import scinameEbird from "./data/sciname-ebird";
+import nfc, { ebirdToNFCMap } from "./data/nfc";
 export interface BirdCode {
   /** 4-letter code for the species */
   SPEC: string;
@@ -11,6 +12,7 @@ export interface BirdCode {
   CONF?: string;
   CONF6?: string;
   EBIRD?: string; // eBird codes added dynamically after definition
+  NFC?: string; // NFC codes added dynamically after definition
 }
 const codes: BirdCode[] = [
   {
@@ -14706,15 +14708,47 @@ const codes: BirdCode[] = [
   },
 ];
 
-// add ebird codes to the expor
 codes.map((bird) => {
-  bird.EBIRD = scinameEbird.get(bird.SCINAME) || "";
+  // add ebird codes to the export
+  bird.EBIRD = scinameEbird.get(bird.SCINAME);
+  // Add NFC groups
+  if (bird.EBIRD) {
+    bird.NFC = ebirdToNFCMap.get(bird.EBIRD);
+  }
 });
 
 export default codes;
 
-const birdMap = new Map<string, BirdCode>();
+const specToBirdMap = new Map<string, BirdCode>();
 codes.forEach((bird) => {
-  birdMap.set(bird.SPEC, bird);
+  specToBirdMap.set(bird.SPEC, bird);
 });
-export { birdMap };
+
+const ebirdToBirdMap = new Map<string, BirdCode>();
+codes.forEach((bird) => {
+  if (bird.EBIRD) {
+    ebirdToBirdMap.set(bird.EBIRD, bird);
+  }
+});
+
+const nfcWithBirds = Object.fromEntries(
+  Object.entries(nfc).map(([nfcName, nfcData]) => {
+    const birds = nfcData.map((ebirdCode) => {
+      if (!ebirdToBirdMap.has(ebirdCode)) {
+        console.warn(
+          `NFC ${nfcName} has ebird code ${ebirdCode} that is not in the bird codes list.`,
+        );
+        return null;
+      }
+      return ebirdToBirdMap.get(ebirdCode);
+    });
+    return [
+      nfcName,
+      birds.filter(
+        (bird): bird is BirdCode => bird !== null && bird !== undefined,
+      ),
+    ];
+  }),
+);
+
+export { specToBirdMap, ebirdToBirdMap, nfcWithBirds };

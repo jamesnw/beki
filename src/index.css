@@ -1,3 +1,4 @@
+@import "kelp-overrides.css";
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -31,5 +32,6 @@ body {
 }
 
 .match {
-  color: red;
+  /* eslint-disable-next-line css/no-invalid-properties */
+  color: var(--color-orange-40);
 }

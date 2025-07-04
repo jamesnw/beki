@@ -4,7 +4,7 @@ import { createStore } from "solid-js/store";
 const [options, setOptions] = createStore({
   species: true,
   search: "",
-  codeType: "4" as "4" | "6",
+  codeType: "4" as "4" | "6" | "ebird",
 });
 
 export { options, setOptions };
