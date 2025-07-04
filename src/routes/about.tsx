@@ -38,6 +38,7 @@ function About() {
         </li>
       </ul>
       <p>Have ideas? Let me know on Github!</p>
+      <p>This site is themed using <a href="https://kelpui.com/">Kelp</a>!</p>
     </div>
   );
 }
