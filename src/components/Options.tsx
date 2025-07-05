@@ -3,7 +3,7 @@ import { options, setOptions } from "../optionStore.ts";
 function Options() {
   return (
     <div class="callout primary">
-      <div class="grid">
+      <div class="grid-m">
         <label class="item-half sidecar">
           <span>Code type</span>
           <select
@@ -20,6 +20,9 @@ function Options() {
             <option value="ebird" selected={options.codeType === "ebird"}>
               eBird
             </option>
+            <option value="sci4" selected={options.codeType === "sci4"}>
+              Scientific 4-letter
+            </option>
           </select>
         </label>
         <div class="item-half">
@@ -32,15 +35,15 @@ function Options() {
             Only show species
           </label>
         </div>
-      </div>
-      <label>
-        Search:
+      <label class="item-half sidecar">
+        <span>Search:</span>
         <input
           type="text"
           value={options.search}
           onInput={(e) => setOptions("search", e.currentTarget.value)}
-        />
+          />
       </label>
+          </div>
     </div>
   );
 }

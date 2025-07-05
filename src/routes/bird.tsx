@@ -50,6 +50,16 @@ export default function Bird() {
             </dd>
           </>
         )}
+        {bird.SCI4 && (
+          <>
+            <dt>Scientific 4-letter code</dt>
+            <dd>
+             
+                {bird.SCI4}
+
+            </dd>
+          </>
+        )}
       </dl>
     </div>
   );

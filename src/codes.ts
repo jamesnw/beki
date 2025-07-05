@@ -13,6 +13,7 @@ export interface BirdCode {
   CONF6?: string;
   EBIRD?: string; // eBird codes added dynamically after definition
   NFC?: string; // NFC codes added dynamically after definition
+  SCI4?: string; // 4-letter scientific code, added dynamically after definition
 }
 const codes: BirdCode[] = [
   {
@@ -14715,6 +14716,13 @@ codes.map((bird) => {
   if (bird.EBIRD) {
     bird.NFC = ebirdToNFCMap.get(bird.EBIRD);
   }
+  // Add SCI4 code
+  if (!bird.SP) {
+    const [genus, species, subspecies] = bird.SCINAME.split(" ");
+    if(subspecies) throw new Error(`Subspecies not supported in SCI4 code: ${bird.SCINAME}`);
+    bird.SCI4 = `${genus.slice(0, 2).toUpperCase()}${species.slice(0, 2).toUpperCase()}`;
+  }
+  return bird;
 });
 
 export default codes;

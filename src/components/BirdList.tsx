@@ -13,7 +13,9 @@ function BirdList() {
         (options.codeType === "6" &&
           bird.SPEC6.toLowerCase().includes(searchTerm)) ||
         (options.codeType === "ebird" &&
-          (bird.EBIRD || "").toLowerCase().includes(searchTerm))
+          (bird.EBIRD || "").toLowerCase().includes(searchTerm))  ||
+        (options.codeType === "sci4" &&
+          (bird.SCI4 || "").toLowerCase().includes(searchTerm))
       );
     });
   };
