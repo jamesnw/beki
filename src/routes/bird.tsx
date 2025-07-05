@@ -16,6 +16,14 @@ export default function Bird() {
         </small>
       </h1>
       <hr />
+      {bird.SPEC === "BEKI" && (
+        <img
+          src="/logo.svg"
+          alt="BEKI Birdcode Logo"
+          width="320"
+          height="320"
+        />
+      )}
       <dl>
         <dt>Species Code</dt>
         <dd>{bird.SPEC}</dd>

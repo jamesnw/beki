@@ -10,8 +10,8 @@ function Header() {
           <img
             src="/logo.svg"
             alt="BEKI Birdcode Logo"
-            width="32"
-            height="32"
+            width="64"
+            height="64"
           />
           <div class="split gap-4xs align-center">
             BEKI <small>(Birdcode Easy Knowing Index)</small>
