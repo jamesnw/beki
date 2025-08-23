@@ -1,4 +1,5 @@
 @import "kelp-overrides.css";
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -34,4 +35,30 @@ body {
 .match {
   /* eslint-disable-next-line css/no-invalid-properties */
   color: var(--color-orange-40);
+}
+
+#toc {
+  position: sticky;
+  margin-top: var(--size-5xl);
+  top: 1rem;
+  max-height: calc(100vb - 2rem);
+  overflow: auto;
+}
+
+.toc-watch {
+  timeline-scope: var(--scopes);
+  section {
+    view-timeline: var(--is);
+  }
+}
+.toc-link:not(:hover, :focus-visible) {
+  animation: current-item linear;
+  animation-timeline: var(--for);
+  animation-range: entry min(33cqb, 33%) exit calc(100% - min(33cqb, 33%));
+}
+@keyframes current-item {
+  0%,
+  99.9% {
+    font-weight: bold;
+  }
 }

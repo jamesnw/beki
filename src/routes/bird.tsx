@@ -47,7 +47,6 @@ export default function Bird() {
               >
                 {bird.EBIRD}
               </a>{" "}
-              
               <a
                 href={`https://media.ebird.org/catalog?birdOnly=true&taxonCode=${bird.EBIRD}&mediaType=audio&tag=flight_call`}
                 target="_blank"
