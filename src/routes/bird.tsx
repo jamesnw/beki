@@ -47,13 +47,14 @@ export default function Bird() {
               >
                 {bird.EBIRD}
               </a>{" "}
-              -
+              
               <a
                 href={`https://media.ebird.org/catalog?birdOnly=true&taxonCode=foxspa&mediaType=audio&tag=flight_call`}
                 target="_blank"
                 aria-label="Flight calls"
+                class="size-3xl"
               >
-                ♪{" "}
+                ♪
               </a>
             </dd>
           </>
