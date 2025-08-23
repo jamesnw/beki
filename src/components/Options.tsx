@@ -35,15 +35,15 @@ function Options() {
             Only show species
           </label>
         </div>
-      <label class="item-half sidecar">
-        <span>Search:</span>
-        <input
-          type="text"
-          value={options.search}
-          onInput={(e) => setOptions("search", e.currentTarget.value)}
+        <label class="item-half sidecar">
+          <span>Search:</span>
+          <input
+            type="text"
+            value={options.search}
+            onInput={(e) => setOptions("search", e.currentTarget.value)}
           />
-      </label>
-          </div>
+        </label>
+      </div>
     </div>
   );
 }

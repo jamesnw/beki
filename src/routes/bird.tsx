@@ -46,6 +46,14 @@ export default function Bird() {
                 target="_blank"
               >
                 {bird.EBIRD}
+              </a>{" "}
+              -
+              <a
+                href={`https://media.ebird.org/catalog?birdOnly=true&taxonCode=foxspa&mediaType=audio&tag=flight_call`}
+                target="_blank"
+                aria-label="Flight calls"
+              >
+                ♪{" "}
               </a>
             </dd>
           </>
@@ -53,10 +61,16 @@ export default function Bird() {
         {bird.SCI4 && (
           <>
             <dt>Scientific 4-letter code</dt>
+            <dd>{bird.SCI4}</dd>
+          </>
+        )}
+        {bird.OLDBIRD && (
+          <>
+            <dt>OldBird Reference</dt>
             <dd>
-             
-                {bird.SCI4}
-
+              <a href={bird.OLDBIRD} target="_blank">
+                {bird.OLDBIRD}
+              </a>
             </dd>
           </>
         )}

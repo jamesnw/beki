@@ -4,7 +4,7 @@ function Header() {
       <strong>
         <a
           class="logo link-subtle size-2xl font-secondary flex"
-          style="--color: var(--color-text-normal); --color-hover: var(--focus-ring-color);"
+          // style="--color: var(--color-text-normal); --color-hover: var(--focus-ring-color);"
           href="/"
         >
           <img
