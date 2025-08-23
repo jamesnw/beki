@@ -49,7 +49,7 @@ export default function Bird() {
               </a>{" "}
               
               <a
-                href={`https://media.ebird.org/catalog?birdOnly=true&taxonCode=foxspa&mediaType=audio&tag=flight_call`}
+                href={`https://media.ebird.org/catalog?birdOnly=true&taxonCode=${bird.EBIRD}&mediaType=audio&tag=flight_call`}
                 target="_blank"
                 aria-label="Flight calls"
                 class="size-3xl"
