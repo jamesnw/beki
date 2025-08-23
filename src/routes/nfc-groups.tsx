@@ -1,5 +1,11 @@
 import { nfcWithBirds } from "../codes";
-
+declare module "solid-js" {
+  namespace JSX {
+    interface IntrinsicElements {
+      'kelp-heading-anchors': any
+    }
+  }
+}
 function NfcGroups() {
   return (
     <div
