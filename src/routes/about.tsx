@@ -3,7 +3,7 @@ function About() {
     <div class="stack gap-4">
       <h1 class="text-center">About BEKI</h1>
       <p>
-        The Birdcode Easy Knowning Index, or <a href="/bird/BEKI">BEKI</a> is an
+        The Birdcode Easy Knowing Index, or <a href="/bird/BEKI">BEKI</a> is an
         attempt to bring some order to the chaos that is all the different ways
         that a bird's name can be shortened.
       </p>
