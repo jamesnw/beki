@@ -85,7 +85,8 @@ const groups: Map<string, NFCGroup> = new Map([
       birds: ["indbun", "blugrb1", "paibun", "lazbun", "varbun"],
     },
   ],
-  [ 
+  [
+    "TANA",
     {
       description: "TANAgers",
       link: "",

@@ -38,9 +38,22 @@ function About() {
         </li>
       </ul>
       <p>Have ideas? Let me know on Github!</p>
-      <p>
-        This site is themed using <a href="https://kelpui.com/">Kelp</a>!
-      </p>
+      <ul>
+        <li>
+          This site is themed using <a href="https://kelpui.com/">Kelp</a>!
+        </li>
+        <li>
+          Thanks to{" "}
+          <a href="https://kizu.dev/scroll-driven-animations/#solution-using-timeline-scope">
+            this guide
+          </a>{" "}
+          for the table of contents scroll tracking.
+        </li>
+        <li>
+          Using <a href="https://jamessw.goatcounter.com/">GoatCounter</a> for
+          minimal tracking, with no user data collection.
+        </li>
+      </ul>
     </div>
   );
 }
