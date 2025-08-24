@@ -1,11 +1,16 @@
 import { nfcWithBirds } from "../codes";
+import nfcGroups from "../data/nfc";
+
 declare module "solid-js" {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace JSX {
     interface IntrinsicElements {
-      'kelp-heading-anchors': any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      "kelp-heading-anchors": any;
     }
   }
 }
+
 function NfcGroups() {
   return (
     <div
@@ -30,6 +35,18 @@ function NfcGroups() {
             .map(([nfcGroup, birds]) => (
               <section style={`--is:--${nfcGroup}`}>
                 <h2 id={nfcGroup}>{nfcGroup}</h2>
+                <p>
+                  {nfcGroups.get(nfcGroup)?.description}{" "}
+                  {nfcGroups.get(nfcGroup)?.link && (
+                    <a
+                      href={nfcGroups.get(nfcGroup)?.link}
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      (OldBird reference)
+                    </a>
+                  )}
+                </p>
                 <ul>
                   {birds.map((bird) => (
                     <li>

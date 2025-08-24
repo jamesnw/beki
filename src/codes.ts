@@ -14747,8 +14747,8 @@ codes.forEach((bird) => {
 });
 
 const nfcWithBirds = Object.fromEntries(
-  Object.entries(nfc).map(([nfcName, nfcData]) => {
-    const birds = nfcData.map((ebirdCode) => {
+  [...nfc.entries()].map(([nfcName, nfcData]) => {
+    const birds = nfcData.birds.map((ebirdCode) => {
       if (!ebirdToBirdMap.has(ebirdCode)) {
         console.warn(
           `NFC ${nfcName} has ebird code ${ebirdCode} that is not in the bird codes list.`,
