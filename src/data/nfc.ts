@@ -23,7 +23,7 @@ const groups: Map<string, NFCGroup> = new Map([
   [
     "SFHS",
     {
-      description: "",
+      description: "Song, Fox, Harris Sparrows (and a couple others)",
       link: "",
       birds: ["foxspa", "sonspa", "harspa", "gocspa", "whtspa"],
     },
