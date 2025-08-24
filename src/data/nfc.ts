@@ -73,20 +73,19 @@ const groups: Map<string, NFCGroup> = new Map([
     "DEWA",
     {
       description: "Descending Warblers",
-      link: "",
+      link: "http://oldbird.org/pubs/fcmb/pages/deseeps.htm",
       birds: ["yetwar", "norpar", "pinwar"],
     },
   ],
   [
     "BUNT",
     {
-      description: "Buntings (and a Grosbeak?)",
+      description: "Buntings (and a Grosbeak!?)",
       link: "",
       birds: ["indbun", "blugrb1", "paibun", "lazbun", "varbun"],
     },
   ],
-  [
-    "TANA",
+  [ 
     {
       description: "TANAgers",
       link: "",
