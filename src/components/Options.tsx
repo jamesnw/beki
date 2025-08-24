@@ -2,7 +2,7 @@ import { options, setOptions } from "../optionStore.ts";
 
 function Options() {
   return (
-    <div class="callout primary">
+    <div class="callout">
       <div class="grid-m">
         <label class="item-half sidecar">
           <span>Code type</span>
