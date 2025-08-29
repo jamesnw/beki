@@ -86,7 +86,7 @@ body {
       stroke: var(--color-secondary-fill-accent);
       fill: var(--color-secondary-fill-accent);
     }
-    &[focused="focused"] {
+    &[data-focused="focused"] {
       opacity: 1;
 
       path {

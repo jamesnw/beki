@@ -33,10 +33,9 @@ export default function Zeeper({
     return matches().map(([bird, details]) => {
       return (
         <g
-          key={bird}
+          // key={bird}
           class="zeeperBird"
-          title={bird}
-          focused={
+          data-focused={
             focusedBird()
               ? focusedBird() === bird
                 ? "focused"
@@ -130,7 +129,9 @@ export default function Zeeper({
             [400, 6],
             [500, 5],
           ].map(([y, k]) => (
-            <g key={y}>
+            <g 
+            //key={y}
+            >
               <line x1="0" y1={y} x2={canvasWidth} y2={y} stroke-width="2" />
               <text x={10} y={y - 5} font-size="30">
                 {k}kHz
