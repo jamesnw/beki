@@ -31,6 +31,11 @@ function Header() {
             </a>
           </li>
           <li>
+            <a class="link-subtle" href="/nfc/zeep">
+              Zeeps
+            </a>
+          </li>
+          <li>
             <a class="link-subtle" href="/about">
               About
             </a>

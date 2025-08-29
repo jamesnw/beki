@@ -1,24 +1,32 @@
-import { createMemo, createSignal } from "solid-js";
-import { ZeepDetails } from "../data/nfc";
+import { createSignal } from "solid-js";
 import Zeeper from "../components/Zeeper";
 
 const inputs = [
-  { name: "duration", label: "Duration", unit: "ms", min: 0, max: 100, default: 50 },
+  {
+    name: "duration",
+    label: "Duration",
+    unit: "ms",
+    min: 0,
+    max: 100,
+    default: 50,
+  },
   {
     name: "frequency_low",
-    label: "Frequency Low", unit:"k",
-    min: 0,
+    label: "Frequency Low",
+    unit: "k",
+    min: 5,
     max: 10,
-    default: 0,
-    step: 0.1
+    default: 5,
+    step: 0.1,
   },
   {
     name: "frequency_high",
-    label: "Frequency High", unit:"k",
-    min: 0,
+    label: "Frequency High",
+    unit: "k",
+    min: 5,
     max: 10,
     default: 10,
-    step: 0.1
+    step: 0.1,
   },
   { name: "humps", label: "Humps", min: 0, max: 10, default: 3 },
   // {
@@ -42,30 +50,14 @@ export default function NfcZeep() {
     ),
   );
 
-  const matches = createMemo(() => {
-    return Object.entries(ZeepDetails).filter(([bird, details]) => {
-      const tests = [
-        details["Low duration"] <= measured().duration,
-        details["High Duration"] >= measured().duration,
-        details["Frequency Low Average"] <= measured().frequency_low || measured().frequency_low === 0,
-        details["Frequency High Average"] >= measured().frequency_high || measured().frequency_high === 10,
-        details["Low Humps"] <= measured().humps || measured().humps === 0,
-        details["High Humps"] >= measured().humps || measured().humps === 0,
-        // details["Hump spacing"] >= settings().hump_spacing &&
-        // details["Hump depth"] >= settings().hump_depth
-      ];
-      console.log(bird, details, tests);
-      return tests.every((t) => t);
-    });
-  }, [measured]);
-
   return (
     <div>
       <h1>Zeeps</h1>
       {inputs.map((input) => (
         <div>
           <label for={input.name}>
-            {input.label} {measured()[input.name]}{input.unit}
+            {input.label} {measured()[input.name]}
+            {input.unit}
           </label>
           <input
             type="range"
@@ -84,27 +76,15 @@ export default function NfcZeep() {
           />
         </div>
       ))}
-      <h2>Matches</h2>
-      <div>
-        {matches().length === 0 && <p>No matches</p>}
-        {matches().length > 0 && (
-          <ul>
-            {matches().map(([bird, details]) => (
-              <li>
-                <strong>{bird}</strong>: {details["Low duration"]}-
-                {details["High Duration"]}ms,{" "}
-                {parseFloat(details["Frequency Low"])}-
-                {parseFloat(details["Frequency High"])}kHz,{" "}
-                {details["Low Humps"]}-{details["High Humps"]} humps,
-                {details["Rising"] ? " rising" : ""},
-                {details["Flat"] ? " flat" : ""}
-               
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
       <Zeeper measured={measured} />
+      <p class="margin-start-l">
+        This tool uses the ranges from OldBird's{" "}
+        <a href="http://oldbird.org/pubs/fcmb/pages/zeep.htm">Zeep calls</a>{" "}
+        measurements to find matching zeeps. You can disable the Low and Hump
+        sliders by setting them to their minimum value, and the High Frequency
+        by setting it to its maximum. Hover a bird in the list to see its range
+        highlighted in the graph.
+      </p>
     </div>
   );
 }

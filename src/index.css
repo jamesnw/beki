@@ -27,9 +27,6 @@ body {
   a:hover {
     color: #747bff;
   }
-  button {
-    background-color: #f9f9f9;
-  }
 }
 
 .match {
@@ -60,5 +57,49 @@ body {
   0%,
   99.9% {
     font-weight: bold;
+  }
+}
+
+.zeeper {
+  background: var(--color-background);
+  #hzAxis text {
+    fill: var(--color-gray-60);
+  }
+  #hzAxis line {
+    stroke: var(--color-gray-30);
+  }
+  #measuredBox {
+    fill: var(--color-primary-fill-vivid);
+    stroke: var(--color-primary-fill-vivid);
+  }
+
+  .zeeperBird {
+    opacity: 0.5;
+    rect {
+      stroke: var(--color-secondary-fill-accent);
+    }
+    path {
+      stroke: var(--color-secondary-fill-muted);
+      fill: var(--color-secondary-fill-muted);
+    }
+    text {
+      stroke: var(--color-secondary-fill-accent);
+      fill: var(--color-secondary-fill-accent);
+    }
+    &[focused="focused"] {
+      opacity: 1;
+
+      path {
+        stroke: var(--color-secondary-fill-accent);
+        fill: var(--color-secondary-fill-accent);
+      }
+      text {
+        stroke: var(--color-secondary-fill-vivid);
+        fill: var(--color-secondary-fill-vivid);
+      }
+    }
+    &[focused="other"] {
+      opacity: 0;
+    }
   }
 }
