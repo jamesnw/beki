@@ -110,6 +110,9 @@ export default function Zeeper({
             </button>
           </li>
         ))}
+        <li>
+          (And remember there's no shame in <em>New world warbler sp.</em>)
+        </li>
       </ul>
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -129,7 +132,7 @@ export default function Zeeper({
             [400, 6],
             [500, 5],
           ].map(([y, k]) => (
-            <g 
+            <g
             //key={y}
             >
               <line x1="0" y1={y} x2={canvasWidth} y2={y} stroke-width="2" />

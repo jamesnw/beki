@@ -85,6 +85,11 @@ export default function NfcZeep() {
         by setting it to its maximum. Hover a bird in the list to see its range
         highlighted in the graph.
       </p>
+      <p>
+        The sample size is very small, so this should be used to help narrow
+        down the category, but should not be the only factor. This doesn't take
+        into account the birds that are actually likely to be around.
+      </p>
     </div>
   );
 }
