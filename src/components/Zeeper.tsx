@@ -89,8 +89,8 @@ export default function Zeeper({
   }, [measured, matches]);
 
   return (
-    <div class="grid">
-      <ul class="stack list-unstyled item-fourth">
+    <div class="grid-xl">
+      <ul class="cluster align-start list-unstyled item-fourth">
         {matches().map(([bird]) => (
           <li>
             <button
