@@ -31,8 +31,8 @@ function Header() {
             </a>
           </li>
           <li>
-            <a class="link-subtle" href="/nfc/zeep">
-              Zeeps
+            <a class="link-subtle" href="/nfc/merge">
+              NFC Merge
             </a>
           </li>
           <li>

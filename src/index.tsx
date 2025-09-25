@@ -8,6 +8,7 @@ import About from "./routes/about";
 import Bird from "./routes/bird";
 import NfcGroups from "./routes/nfc-groups";
 import NfcZeep from "./routes/nfc-zeep";
+import Merge from "./routes/merge";
 
 const root = document.getElementById("root");
 
@@ -18,6 +19,7 @@ render(
       <Route path="/about" component={About}></Route>
       <Route path="/nfc" component={NfcGroups}></Route>
       <Route path="/nfc/zeep" component={NfcZeep}></Route>
+      <Route path="/nfc/merge" component={Merge}></Route>
       <Route path="/bird/:spec" component={Bird}></Route>
     </Router>
   ),
