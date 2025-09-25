@@ -1,5 +1,4 @@
 import { createSignal } from "solid-js";
-import nfcGroups from "../data/nfc";
 import groups from "../data/nfc";
 
 const processLine = (line: string) => {
@@ -7,12 +6,14 @@ const processLine = (line: string) => {
   if (parts.length < 3) {
     return;
   }
-  let [start, end, label] = parts;
+  // eslint-disable-next-line
+  [start, end, label] = parts;
   start = parseFloat(start).toFixed(3);
   end = parseFloat(end).toFixed(3);
   // Nighthawk output
   const res = label.match(/(.*) \((.*)\)/);
   if (res) {
+    // eslint-disable-next-line
     let [_, name, strength] = res || [null, label, "0"];
     strength = parseFloat(strength).toFixed(2);
     return {
@@ -48,7 +49,7 @@ const processLine = (line: string) => {
 };
 
 function Merge() {
-  const [results, setResults] = createSignal([]);
+  const [results, setResults] = createSignal<object[]>([]);
   const [processedFiles, setProcessedFiles] = createSignal<string[]>([]);
   const [combine, setCombine] = createSignal(true);
 
@@ -61,7 +62,7 @@ function Merge() {
   };
 
   const display = () => {
-    let res = Object.entries(grouped())
+    const res = Object.entries(grouped())
       .map(([name, items]) => ({
         name,
         totalCount: items.reduce(
