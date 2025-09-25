@@ -10,7 +10,7 @@ const groups: Map<string, NFCGroup> = new Map([
       description: "It looks like a cup.",
       link: "",
       birds: ["chispa", "amtspa"],
-      parent: "Passerellidae"
+      parent: "Passerellidae",
     },
   ],
   [
@@ -19,7 +19,7 @@ const groups: Map<string, NFCGroup> = new Map([
       description: "From the bird names",
       link: "",
       birds: ["swaspa", "linspa"],
-      parent: "Passerellidae"
+      parent: "Passerellidae",
     },
   ],
   [
@@ -28,7 +28,7 @@ const groups: Map<string, NFCGroup> = new Map([
       description: "Song, Fox, Harris Sparrows (and a couple others)",
       link: "",
       birds: ["foxspa", "sonspa", "harspa", "gocspa", "whtspa"],
-      parent: "Passerellidae"
+      parent: "Passerellidae",
     },
   ],
   [
@@ -37,7 +37,7 @@ const groups: Map<string, NFCGroup> = new Map([
       description: "",
       link: "",
       birds: ["graspa", "vesspa", "whcspa", "seaspa"],
-      parent: "Passerellidae"
+      parent: "Passerellidae",
     },
   ],
   [
@@ -55,7 +55,7 @@ const groups: Map<string, NFCGroup> = new Map([
         "buwwar",
         "gowwar",
       ],
-      parent: "Parulidae"
+      parent: "Parulidae",
     },
   ],
   [
@@ -72,7 +72,7 @@ const groups: Map<string, NFCGroup> = new Map([
         "bacspa",
         "savspa",
       ],
-      parent: "Passerellidae"
+      parent: "Passerellidae",
     },
   ],
   [
@@ -81,7 +81,7 @@ const groups: Map<string, NFCGroup> = new Map([
       description: "Descending Warblers",
       link: "http://oldbird.org/pubs/fcmb/pages/deseeps.htm",
       birds: ["yetwar", "norpar", "pinwar"],
-      parent: "Parulidae"
+      parent: "Parulidae",
     },
   ],
   [
@@ -98,17 +98,25 @@ const groups: Map<string, NFCGroup> = new Map([
       description: "TANAgers",
       link: "",
       birds: ["scatan", "sumtan", "westan"],
-      parent: "Thraupidae"
+      parent: "Thraupidae",
     },
   ],
-  ["GROS", { description: "Grosbeaks", link: "", birds: ["robgro", "bkhgro"], parent: "Cardinalidae" }],
+  [
+    "GROS",
+    {
+      description: "Grosbeaks",
+      link: "",
+      birds: ["robgro", "bkhgro"],
+      parent: "Cardinalidae",
+    },
+  ],
   [
     "THSH",
     {
       description: "THruSHes",
       link: "",
       birds: ["veery", "swathr", "woothr", "herthr"],
-      parent: "Turdidae"
+      parent: "Turdidae",
     },
   ],
   [
@@ -117,7 +125,7 @@ const groups: Map<string, NFCGroup> = new Map([
       description: "From the bird names",
       link: "",
       birds: ["gycthr", "bicthr"],
-      parent: "Turdidae"
+      parent: "Turdidae",
     },
   ],
   [
@@ -140,7 +148,7 @@ const groups: Map<string, NFCGroup> = new Map([
         "camwar",
         "refwar",
       ],
-      parent: "Parulidae"
+      parent: "Parulidae",
     },
   ],
   [
@@ -162,7 +170,7 @@ const groups: Map<string, NFCGroup> = new Map([
         "grawar",
         "btywar",
       ],
-      parent: "Parulidae"
+      parent: "Parulidae",
     },
   ],
   [
@@ -171,7 +179,7 @@ const groups: Map<string, NFCGroup> = new Map([
       description: "BuZzing WArblers.",
       link: "http://oldbird.org/pubs/fcmb/pages/buzz.htm",
       birds: ["chswar", "kirwar", "hoowar", "comyel"],
-      parent: "Parulidae"
+      parent: "Parulidae",
     },
   ],
   [
@@ -188,7 +196,7 @@ const groups: Map<string, NFCGroup> = new Map([
       description: "From the bird names",
       link: "",
       birds: ["clcspa", "brespa"],
-      parent: "Passerellidae"
+      parent: "Passerellidae",
     },
   ],
   [
@@ -197,7 +205,7 @@ const groups: Map<string, NFCGroup> = new Map([
       description: "From the bird names",
       link: "",
       birds: ["macwar", "mouwar"],
-      parent: "Parulidae"
+      parent: "Parulidae",
     },
   ],
   [
@@ -212,7 +220,7 @@ const groups: Map<string, NFCGroup> = new Map([
         //   "retthr1",
         //   "datthr1"
       ],
-      parent: "Turdidae"
+      parent: "Turdidae",
     },
   ],
 ]);

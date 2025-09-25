@@ -122,7 +122,9 @@ function Merge() {
               checked={combine()}
               onChange={(e) => setCombine(e.currentTarget.checked)}
             />
-            {combine() ? "Merging NFC groups with parents" : "Not merging NFC groups with parents"}{" "}
+            {combine()
+              ? "Merging NFC groups with parents"
+              : "Not merging NFC groups with parents"}{" "}
           </label>
         </div>
       </div>
