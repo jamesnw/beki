@@ -1,13 +1,23 @@
 import { createSignal } from "solid-js";
 import groups from "../data/nfc";
 
+interface Result {
+  start: string;
+  end: string;
+  name: string;
+  strength?: string;
+  count: number;
+  additional: number;
+  audio: boolean;
+}
+
 const processLine = (line: string) => {
   const parts = line.split("\t");
   if (parts.length < 3) {
     return;
   }
   // eslint-disable-next-line
-  [start, end, label] = parts;
+  let [start, end, label] = parts;
   start = parseFloat(start).toFixed(3);
   end = parseFloat(end).toFixed(3);
   // Nighthawk output
@@ -49,39 +59,41 @@ const processLine = (line: string) => {
 };
 
 function Merge() {
-  const [results, setResults] = createSignal<object[]>([]);
+  const [results, setResults] = createSignal<Result[]>([]);
   const [processedFiles, setProcessedFiles] = createSignal<string[]>([]);
   const [combine, setCombine] = createSignal(true);
 
   const grouped = () => {
-    if (!combine()) return Object.groupBy(results(), (l) => l?.name);
+    if (!combine()) return Object.groupBy(results(), (l) => l.name);
     return Object.groupBy(
       results(),
-      (l) => groups.get(l?.name)?.parent || l?.name,
+      (l) => groups.get(l.name)?.parent || l.name,
     );
-  };
+  } 
 
   const display = () => {
     const res = Object.entries(grouped())
       .map(([name, items]) => ({
         name,
-        totalCount: items.reduce(
+        totalCount: items?.reduce(
           (acc, item) => acc + item.count + item.additional,
           0,
         ),
-        additional: items.reduce((acc, item) => acc + item.additional, 0),
-        count: items.reduce((acc, item) => acc + item.count, 0),
-        audio: items.some((item) => item.audio),
+        additional: items?.reduce((acc, item) => acc + item.additional, 0),
+        count: items?.reduce((acc, item) => acc + item.count, 0),
+        audio: items?.some((item) => item.audio),
       }))
-      .sort((a, b) => b.count - a.count);
+      .sort((a, b) => (b?.count ?? 1) - (a?.count ?? 1));
     return res;
   };
 
-  const processInput = (input: string, file) => {
+  const processInput = (input: string, file: string) => {
     let lines = input.split("\n").map(processLine);
 
     lines = lines.filter((l) => l?.name !== undefined);
-    setResults((res) => [...res, ...lines]);
+    lines = lines.filter(l=> l !== undefined) as Result[];
+
+    setResults((res) => ([...res, ...lines] as Result[]));
     setProcessedFiles((files) => [...files, file]);
   };
 

@@ -2,6 +2,7 @@ export interface NFCGroup {
   description: string;
   birds: string[];
   link?: string;
+  parent?: string;
 }
 const groups: Map<string, NFCGroup> = new Map([
   [
