@@ -9,6 +9,7 @@ interface Result {
   count: number;
   additional: number;
   audio: boolean;
+  fileName?: string;
 }
 
 const processLine = (line: string) => {
@@ -82,6 +83,7 @@ function Merge() {
         additional: items?.reduce((acc, item) => acc + item.additional, 0),
         count: items?.reduce((acc, item) => acc + item.count, 0),
         audio: items?.some((item) => item.audio),
+        times: items?.map((item)=> ({start: item.start, end: item.end, file: item.fileName}))
       }))
       .sort((a, b) => (b?.count ?? 1) - (a?.count ?? 1));
     return res;
@@ -92,6 +94,7 @@ function Merge() {
 
     lines = lines.filter((l) => l?.name !== undefined);
     lines = lines.filter(l=> l !== undefined) as Result[];
+    lines.map(l=>({...l, fileName: file}));
 
     setResults((res) => ([...res, ...lines] as Result[]));
     setProcessedFiles((files) => [...files, file]);
@@ -101,6 +104,7 @@ function Merge() {
     const target = e.target as HTMLInputElement;
     if (target.files) {
       Array.from(target.files).forEach((file) => {
+        if(!file.name.endsWith(".txt")) return;
         const reader = new FileReader();
         reader.onload = (e) => {
           const text = e.target?.result;
@@ -160,7 +164,9 @@ function Merge() {
           </thead>
           {display().map((r) => (
             <tr>
-              <td>{r.name}</td>
+              <td><details><summary>{r.name}</summary>
+                {r.times?.map(t=> <div>{t.file}:{t.start}-{t.end}</div>)}
+                </details></td>
               <td>{r.count}</td>
               <td>{r.totalCount}</td>
               <td>{r.audio ? "Yes" : "No"}</td>
