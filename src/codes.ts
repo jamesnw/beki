@@ -14739,6 +14739,11 @@ codes.forEach((bird) => {
   specToBirdMap.set(bird.SPEC, bird);
 });
 
+const spec6ToBirdMap = new Map<string, BirdCode>();
+codes.forEach((bird) => {
+  spec6ToBirdMap.set(bird.SPEC6, bird);
+});
+
 const ebirdToBirdMap = new Map<string, BirdCode>();
 codes.forEach((bird) => {
   if (bird.EBIRD) {
@@ -14766,4 +14771,4 @@ const nfcWithBirds = Object.fromEntries(
   }),
 );
 
-export { specToBirdMap, ebirdToBirdMap, nfcWithBirds };
+export { specToBirdMap, spec6ToBirdMap, ebirdToBirdMap, nfcWithBirds };

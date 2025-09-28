@@ -1,5 +1,6 @@
 import { createSignal } from "solid-js";
-import groups from "../data/nfc";
+import groups, { type NFCGroup } from "../data/nfc";
+import { ebirdToBirdMap, type BirdCode } from "../codes";
 
 interface Result {
   start: string;
@@ -10,6 +11,8 @@ interface Result {
   additional: number;
   audio: boolean;
   fileName?: string;
+  fullBird?: BirdCode;
+  nfcGroup?: NFCGroup;
 }
 
 const processLine = (line: string) => {
@@ -88,6 +91,8 @@ function Merge() {
           end: item.end,
           file: item.fileName,
         })),
+        fullBird: ebirdToBirdMap.get(name),
+        nfcGroup: groups.get(name),
       }))
       .sort((a, b) => (b?.count ?? 1) - (a?.count ?? 1));
     return res;
@@ -125,7 +130,7 @@ function Merge() {
     e.preventDefault();
   });
   window.addEventListener("drop", (e) => {
-    if((e.target as HTMLElement)?.id === 'files') return;
+    if ((e.target as HTMLElement)?.id === "files") return;
     e.preventDefault();
   });
 
@@ -159,9 +164,11 @@ function Merge() {
         </div>
       </div>
       <ul>
-        {processedFiles().map((f) => (
-          <li>{f}</li>
-        ))}
+        {processedFiles()
+          .sort()
+          .map((f) => (
+            <li>{f}</li>
+          ))}
       </ul>
 
       <hr />
@@ -173,6 +180,7 @@ function Merge() {
               <th>Count</th>
               <th>NFC Total</th>
               <th>Audio</th>
+              <th>Info</th>
             </tr>
           </thead>
           {display().map((r) => (
@@ -180,7 +188,7 @@ function Merge() {
               <td>
                 <details>
                   <summary>{r.name}</summary>
-                  {r.times?.map((t) => (
+                  {r.times?.sort().map((t) => (
                     <div>
                       {t.file}:{t.start}-{t.end}
                     </div>
@@ -190,6 +198,18 @@ function Merge() {
               <td>{r.count}</td>
               <td>{r.totalCount}</td>
               <td>{r.audio ? "Yes" : "No"}</td>
+              <td>
+                {r.fullBird && (
+                  <a target="_blank" href={`/bird/${r.fullBird.SPEC}`}>
+                    {r.fullBird.COMMONNAME}
+                  </a>
+                )}
+                {r.nfcGroup && (
+                  <a target="_blank" href={`/nfc#${r.name}`}>
+                    {r.nfcGroup.description}
+                  </a>
+                )}
+              </td>
             </tr>
           ))}
         </table>
