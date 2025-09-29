@@ -321,29 +321,29 @@
   dependencies:
     "@types/json-schema" "^7.0.15"
 
-"@eslint/core@^0.15.0":
-  version "0.15.0"
-  resolved "https://registry.yarnpkg.com/@eslint/core/-/core-0.15.0.tgz#8fc04709a7b9a179d9f7d93068fc000cb8c5603d"
-  integrity sha512-b7ePw78tEWWkpgZCDYkbqDOP8dmM6qe+AOC6iuJqlq1R/0ahMAeH3qynpnqKFGkMltrp44ohV4ubGyvLX28tzw==
+"@eslint/core@^0.15.2":
+  version "0.15.2"
+  resolved "https://registry.yarnpkg.com/@eslint/core/-/core-0.15.2.tgz#59386327d7862cc3603ebc7c78159d2dcc4a868f"
+  integrity sha512-78Md3/Rrxh83gCxoUc0EiciuOHsIITzLy53m3d9UyiW8y9Dj2D29FeETqyKA+BRK76tnTp6RXWb3pCay8Oyomg==
   dependencies:
     "@types/json-schema" "^7.0.15"
 
-"@eslint/css-tree@^3.6.1":
-  version "3.6.1"
-  resolved "https://registry.yarnpkg.com/@eslint/css-tree/-/css-tree-3.6.1.tgz#7e162e2884b4581bb74e8cfe9ff1eb42cf87fc9f"
-  integrity sha512-5DIsBME23tUQD5zHD+T38lC2DG4jB8x8JRa+yDncLne2TIZA0VuCpcSazOX1EC+sM/q8w24qeevXfmfsIxAeqA==
+"@eslint/css-tree@^3.6.5":
+  version "3.6.5"
+  resolved "https://registry.yarnpkg.com/@eslint/css-tree/-/css-tree-3.6.5.tgz#e51b69206117135557352982ba65d18f9d9b5a60"
+  integrity sha512-bJgnXu0D0K1BbfPfHTmCaJe2ucBOjeg/tG37H2CSqYCw51VMmBtPfWrH8LKPLAVCOp0h94e1n8PfR3v9iRbtyA==
   dependencies:
-    mdn-data "2.21.0"
+    mdn-data "2.23.0"
     source-map-js "^1.0.1"
 
-"@eslint/css@^0.9.0":
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/@eslint/css/-/css-0.9.0.tgz#fc095bb0a0ec5da5c7482d6360a64ba93743575b"
-  integrity sha512-fq8hYnjipdzVDSU/bXqv7qlvdjDA27Nq7DhQXzlPElLlVon3lnKovIM/6HaUrq1bz7EPgRobr+vOhpeM6z0X4w==
+"@eslint/css@^0.11.1":
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/@eslint/css/-/css-0.11.1.tgz#83be5d62c91e368fff76ceb9d9a8a5d9fd762abc"
+  integrity sha512-EWwIOS/NlvYYen+Bqzedruuvc0JpsHAm4fbkr/N5E0daEN0OaTQPFLoS/UayG7R0giFIpRDdjQ3l/wt3Z3Rf4A==
   dependencies:
-    "@eslint/core" "^0.14.0"
-    "@eslint/css-tree" "^3.6.1"
-    "@eslint/plugin-kit" "^0.3.1"
+    "@eslint/core" "^0.15.2"
+    "@eslint/css-tree" "^3.6.5"
+    "@eslint/plugin-kit" "^0.3.5"
 
 "@eslint/eslintrc@^3.3.1":
   version "3.3.1"
@@ -370,12 +370,12 @@
   resolved "https://registry.yarnpkg.com/@eslint/object-schema/-/object-schema-2.1.6.tgz#58369ab5b5b3ca117880c0f6c0b0f32f6950f24f"
   integrity sha512-RBMg5FRL0I0gs51M/guSAj5/e14VQ4tpZnQNWwuDT66P14I43ItmPfIZRhO9fUVIPOAQXU47atlywZ/czoqFPA==
 
-"@eslint/plugin-kit@^0.3.1":
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/@eslint/plugin-kit/-/plugin-kit-0.3.2.tgz#0cad96b134d23a653348e3342f485636b5ef4732"
-  integrity sha512-4SaFZCNfJqvk/kenHpI8xvN42DMaoycy4PzKc5otHxRswww1kAt82OlBuwRVLofCACCTZEcla2Ydxv8scMXaTg==
+"@eslint/plugin-kit@^0.3.1", "@eslint/plugin-kit@^0.3.5":
+  version "0.3.5"
+  resolved "https://registry.yarnpkg.com/@eslint/plugin-kit/-/plugin-kit-0.3.5.tgz#fd8764f0ee79c8ddab4da65460c641cefee017c5"
+  integrity sha512-Z5kJ+wU3oA7MMIqVR9tyZRtjYPr4OC004Q4Rw7pgOKUOKkJfZ3O24nz3WYfGRpMDNmcOi3TwQOmgm7B7Tpii0w==
   dependencies:
-    "@eslint/core" "^0.15.0"
+    "@eslint/core" "^0.15.2"
     levn "^0.4.1"
 
 "@humanfs/core@^0.19.1":
@@ -1249,10 +1249,10 @@ lru-cache@^5.1.1:
   dependencies:
     yallist "^3.0.2"
 
-mdn-data@2.21.0:
-  version "2.21.0"
-  resolved "https://registry.yarnpkg.com/mdn-data/-/mdn-data-2.21.0.tgz#f3a495e8b1e60cb4fbeaf9136aefba2f987a56e1"
-  integrity sha512-+ZKPQezM5vYJIkCxaC+4DTnRrVZR1CgsKLu5zsQERQx6Tea8Y+wMx5A24rq8A8NepCeatIQufVAekKNgiBMsGQ==
+mdn-data@2.23.0:
+  version "2.23.0"
+  resolved "https://registry.yarnpkg.com/mdn-data/-/mdn-data-2.23.0.tgz#f136a03eeed90d368dc0d849794043b237b53f5b"
+  integrity sha512-786vq1+4079JSeu2XdcDjrhi/Ry7BWtjDl9WtGPWLiIHb2T66GvIVflZTBoSNZ5JqTtJGYEVMuFA/lbQlMOyDQ==
 
 merge-anything@^5.1.7:
   version "5.1.7"
