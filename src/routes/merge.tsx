@@ -98,6 +98,10 @@ function Merge() {
     return res;
   };
 
+  const totalBirds = () => {
+    return display().reduce((acc, item) => acc + (item.totalCount ?? 0), 0);
+  }
+
   const processInput = (input: string, file: string) => {
     let lines = input.split("\n").map(processLine) as Result[];
 
@@ -173,6 +177,8 @@ function Merge() {
 
       <hr />
       {display().length > 0 && (
+        <>
+        <p>{totalBirds()} total birds in {display().length} groups</p>
         <table>
           <thead>
             <tr>
@@ -213,6 +219,7 @@ function Merge() {
             </tr>
           ))}
         </table>
+        </>
       )}
       <hr />
       <section class="callout">

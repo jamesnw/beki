@@ -19,7 +19,7 @@ export default new Map([
   ["kiwa", "http://oldbird.org/pubs/fcmb/species/warblers/kiwa/kiwa.htm"],
   ["prwa", "http://oldbird.org/pubs/fcmb/species/warblers/praw/prwa.htm"],
   ["pawa", "http://oldbird.org/pubs/fcmb/species/warblers/pawa/pawa.htm"],
-  ["babw", "http://oldbird.org/pubs/fcmb/species/warblers/bbwa/babw.htm"],
+  ["bbwa", "http://oldbird.org/pubs/fcmb/species/warblers/bbwa/babw.htm"],
   ["blpw", "http://oldbird.org/pubs/fcmb/species/warblers/blpw/blpw.htm"],
   ["cewa", "http://oldbird.org/pubs/fcmb/species/warblers/cerw/cewa.htm"],
   ["baww", "http://oldbird.org/pubs/fcmb/species/warblers/baww/baww.htm"],
