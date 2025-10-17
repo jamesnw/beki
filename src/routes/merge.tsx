@@ -124,8 +124,14 @@ function Merge() {
     lines = lines.filter((l) => l !== undefined);
     lines = lines.map((l) => ({ ...l, fileName: file }));
 
-    setResults((res) => [...res, ...lines]);
-    setProcessedFiles((files) => [...files, file]);
+    // Remove old results from the same file, then add new results
+    setResults((res) => [...res.filter((r) => r.fileName !== file), ...lines]);
+
+    // Update processed files (remove duplicate if exists, then add)
+    setProcessedFiles((files) => {
+      const filtered = files.filter((f) => f !== file);
+      return [...filtered, file];
+    });
   };
 
   const filesChanged = (e: Event) => {
@@ -297,6 +303,11 @@ function Merge() {
             audio
           </li>
         </ul>
+        <p>
+          If you upload a file with the same name as a file already it
+          processed, it will replace the previous file. If it has a different
+          file name, it will be combined with the existing counts.
+        </p>
         <p>
           Note: All processing is done on your computer, and is never uploaded.
           I have enough of my own NFCs to comb through... I don't want yours.
