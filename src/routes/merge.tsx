@@ -66,6 +66,7 @@ function Merge() {
   const [results, setResults] = createSignal<Result[]>([]);
   const [processedFiles, setProcessedFiles] = createSignal<string[]>([]);
   const [combine, setCombine] = createSignal(true);
+  const [sortBy, setSortBy] = createSignal<"count" | "name" | "order">("count");
 
   const grouped = () => {
     if (!combine()) return Object.groupBy(results(), (l) => l.name);
@@ -97,10 +98,24 @@ function Merge() {
       .sort((a, b) => (b?.count ?? 1) - (a?.count ?? 1));
     return res;
   };
+  const sortedDisplay = () => {
+    switch (sortBy()) {
+      case "count":
+        return display().sort((a, b) => (b?.count ?? 1) - (a?.count ?? 1));
+      case "name":
+        return display().sort((a, b) => a.name.localeCompare(b.name));
+      case "order":
+        return display().sort(
+          (a, b) =>
+            (a.fullBird?.SORT_INDEX ?? 99999) -
+            (b.fullBird?.SORT_INDEX ?? 99999),
+        );
+    }
+  };
 
   const totalBirds = () => {
     return display().reduce((acc, item) => acc + (item.totalCount ?? 0), 0);
-  }
+  };
 
   const processInput = (input: string, file: string) => {
     let lines = input.split("\n").map(processLine) as Result[];
@@ -165,6 +180,19 @@ function Merge() {
               ? "Merging NFC groups with parents"
               : "Not merging NFC groups with parents"}{" "}
           </label>
+          <label>
+            Sort by:{" "}
+            <select
+              value={sortBy()}
+              onChange={(e) =>
+                setSortBy(e.currentTarget.value as "count" | "name" | "order")
+              }
+            >
+              <option value="count">Count</option>
+              <option value="name">Name</option>
+              <option value="order">Field Guide Order</option>
+            </select>
+          </label>
         </div>
       </div>
       <ul>
@@ -176,49 +204,51 @@ function Merge() {
       </ul>
 
       <hr />
-      {display().length > 0 && (
+      {sortedDisplay().length > 0 && (
         <>
-        <p>{totalBirds()} total birds in {display().length} groups</p>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Count</th>
-              <th>NFC Total</th>
-              <th>Audio</th>
-              <th>Info</th>
-            </tr>
-          </thead>
-          {display().map((r) => (
-            <tr>
-              <td>
-                <details>
-                  <summary>{r.name}</summary>
-                  {r.times?.sort().map((t) => (
-                    <div>
-                      {t.file}:{t.start}-{t.end}
-                    </div>
-                  ))}
-                </details>
-              </td>
-              <td>{r.count}</td>
-              <td>{r.totalCount}</td>
-              <td>{r.audio ? "Yes" : "No"}</td>
-              <td>
-                {r.fullBird && (
-                  <a target="_blank" href={`/bird/${r.fullBird.SPEC}`}>
-                    {r.fullBird.COMMONNAME}
-                  </a>
-                )}
-                {r.nfcGroup && (
-                  <a target="_blank" href={`/nfc#${r.name}`}>
-                    {r.nfcGroup.description}
-                  </a>
-                )}
-              </td>
-            </tr>
-          ))}
-        </table>
+          <p>
+            {totalBirds()} total birds in {display().length} groups
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Count</th>
+                <th>NFC Total</th>
+                <th>Audio</th>
+                <th>Info</th>
+              </tr>
+            </thead>
+            {sortedDisplay().map((r) => (
+              <tr>
+                <td>
+                  <details>
+                    <summary>{r.name}</summary>
+                    {r.times?.sort().map((t) => (
+                      <div>
+                        {t.file}:{t.start}-{t.end}
+                      </div>
+                    ))}
+                  </details>
+                </td>
+                <td>{r.count}</td>
+                <td>{r.totalCount}</td>
+                <td>{r.audio ? "Yes" : "No"}</td>
+                <td>
+                  {r.fullBird && (
+                    <a target="_blank" href={`/bird/${r.fullBird.SPEC}`}>
+                      {r.fullBird.COMMONNAME}
+                    </a>
+                  )}
+                  {r.nfcGroup && (
+                    <a target="_blank" href={`/nfc#${r.name}`}>
+                      {r.nfcGroup.description}
+                    </a>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </table>
         </>
       )}
       <hr />
