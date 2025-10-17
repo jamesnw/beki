@@ -65,13 +65,18 @@ const processLine = (line: string) => {
 function Merge() {
   const [results, setResults] = createSignal<Result[]>([]);
   const [processedFiles, setProcessedFiles] = createSignal<string[]>([]);
+  const [excludedFiles, setExcludedFiles] = createSignal<Set<string>>(new Set());
   const [combine, setCombine] = createSignal(true);
   const [sortBy, setSortBy] = createSignal<"count" | "name" | "order">("count");
 
+  const activeResults = () => {
+    return results().filter(r => !excludedFiles().has(r.fileName || ''));
+  };
+
   const grouped = () => {
-    if (!combine()) return Object.groupBy(results(), (l) => l.name);
+    if (!combine()) return Object.groupBy(activeResults(), (l) => l.name);
     return Object.groupBy(
-      results(),
+      activeResults(),
       (l) => groups.get(l.name)?.parent || l.name,
     );
   };
@@ -115,6 +120,18 @@ function Merge() {
 
   const totalBirds = () => {
     return display().reduce((acc, item) => acc + (item.totalCount ?? 0), 0);
+  };
+
+  const toggleFileExclusion = (fileName: string) => {
+    setExcludedFiles(prev => {
+      const next = new Set(prev);
+      if (next.has(fileName)) {
+        next.delete(fileName);
+      } else {
+        next.add(fileName);
+      }
+      return next;
+    });
   };
 
   const processInput = (input: string, file: string) => {
@@ -171,6 +188,7 @@ function Merge() {
               onClick={() => {
                 setResults([]);
                 setProcessedFiles([]);
+                setExcludedFiles(new Set<string>());
               }}
             >
               Clear
@@ -201,11 +219,25 @@ function Merge() {
           </label>
         </div>
       </div>
-      <ul>
+      <ul class="list-inline">
         {processedFiles()
           .sort()
           .map((f) => (
-            <li>{f}</li>
+            <li
+              style={{
+                opacity: excludedFiles().has(f) ? 0.5 : 1,
+                "text-decoration": excludedFiles().has(f) ? "line-through" : "none",
+              }}
+            >
+              <label>
+                <input
+                  type="checkbox"
+                  checked={!excludedFiles().has(f)}
+                  onChange={() => toggleFileExclusion(f)}
+                />
+                {f}
+              </label>
+            </li>
           ))}
       </ul>
 
