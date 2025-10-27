@@ -1,6 +1,7 @@
-import { createSignal } from "solid-js";
+import { createSignal, onCleanup } from "solid-js";
 import groups, { type NFCGroup } from "../data/nfc";
 import { ebirdToBirdMap, type BirdCode } from "../codes";
+import FileProcessorWorker from "../workers/fileProcessor.worker.ts?worker";
 
 interface ShortBirdCode {
   SPEC: string;
@@ -27,53 +28,6 @@ interface Result {
   nfcGroup?: NFCGroup;
 }
 
-const processLine = (line: string) => {
-  const parts = line.split("\t");
-  if (parts.length < 3) {
-    return;
-  }
-  // eslint-disable-next-line
-  let [start, end, label] = parts;
-  start = parseFloat(start).toFixed(3);
-  end = parseFloat(end).toFixed(3);
-  // Nighthawk output
-  const res = label.match(/(.*) \((.*)\)/);
-  if (res) {
-    // eslint-disable-next-line
-    let [_, name, strength] = res || [null, label, "0"];
-    strength = parseFloat(strength).toFixed(2);
-    return {
-      start,
-      end,
-      name,
-      strength,
-      count: 1,
-      additional: 0,
-      audio: false,
-    };
-  }
-  // My format
-  const labelParts = label.split(" ");
-  const output = {
-    start,
-    end,
-    name: "",
-    count: 1,
-    additional: 0,
-    audio: false,
-  };
-  for (let i = 0; i < labelParts.length; i++) {
-    if (i === 0) output.name = labelParts[i];
-    else if (labelParts[i].match(/^\d+$/))
-      output.count = parseInt(labelParts[i]);
-    else if (labelParts[i].match(/^\+\d+$/))
-      output.additional = parseInt(labelParts[i].substring(1));
-    else if (labelParts[i] === "audio") output.audio = true;
-    else console.warn("Unknown label part:", labelParts[i]);
-  }
-  return output;
-};
-
 function Merge() {
   const [results, setResults] = createSignal<Result[]>([]);
   const [processedFiles, setProcessedFiles] = createSignal<string[]>([]);
@@ -82,6 +36,43 @@ function Merge() {
   );
   const [combine, setCombine] = createSignal(true);
   const [sortBy, setSortBy] = createSignal<"count" | "name" | "order">("count");
+  const [processingFiles, setProcessingFiles] = createSignal<Set<string>>(
+    new Set(),
+  );
+
+  // Initialize the worker
+  const worker = new FileProcessorWorker();
+
+  // Handle messages from the worker
+  worker.onmessage = (event: MessageEvent) => {
+    if (event.data.type === "FILE_PROCESSED") {
+      const { results: newResults, fileName } = event.data;
+
+      // Remove old results from the same file, then add new results
+      setResults((res) => [
+        ...res.filter((r) => r.fileName !== fileName),
+        ...newResults,
+      ]);
+
+      // Update processed files (remove duplicate if exists, then add)
+      setProcessedFiles((files) => {
+        const filtered = files.filter((f) => f !== fileName);
+        return [...filtered, fileName];
+      });
+
+      // Remove from processing set
+      setProcessingFiles((files) => {
+        const next = new Set(files);
+        next.delete(fileName);
+        return next;
+      });
+    }
+  };
+
+  // Clean up worker when component unmounts
+  onCleanup(() => {
+    worker.terminate();
+  });
 
   const activeResults = () => {
     return results().filter((r) => !excludedFiles().has(r.fileName || ""));
@@ -151,33 +142,29 @@ function Merge() {
     });
   };
 
-  const processInput = (input: string, file: string) => {
-    let lines = input.split("\n").map(processLine) as Result[];
-
-    lines = lines.filter((l) => l?.name !== undefined);
-    lines = lines.filter((l) => l !== undefined);
-    lines = lines.map((l) => ({ ...l, fileName: file }));
-
-    // Remove old results from the same file, then add new results
-    setResults((res) => [...res.filter((r) => r.fileName !== file), ...lines]);
-
-    // Update processed files (remove duplicate if exists, then add)
-    setProcessedFiles((files) => {
-      const filtered = files.filter((f) => f !== file);
-      return [...filtered, file];
-    });
-  };
-
   const filesChanged = (e: Event) => {
     const target = e.target as HTMLInputElement;
     if (target.files) {
       Array.from(target.files).forEach((file) => {
         if (!file.name.endsWith(".txt")) return;
+
+        // Add to processing set
+        setProcessingFiles((files) => {
+          const next = new Set(files);
+          next.add(file.name);
+          return next;
+        });
+
         const reader = new FileReader();
         reader.onload = (e) => {
           const text = e.target?.result;
           if (typeof text === "string") {
-            processInput(text, file.name);
+            // Send to worker for processing
+            worker.postMessage({
+              type: "PROCESS_FILE",
+              content: text,
+              fileName: file.name,
+            });
           }
         };
         reader.readAsText(file);
@@ -206,6 +193,7 @@ function Merge() {
                 setResults([]);
                 setProcessedFiles([]);
                 setExcludedFiles(new Set<string>());
+                setProcessingFiles(new Set<string>());
               }}
             >
               Clear
@@ -236,6 +224,12 @@ function Merge() {
           </label>
         </div>
       </div>
+      {processingFiles().size > 0 && (
+        <div class="callout">
+          Processing {processingFiles().size} file
+          {processingFiles().size > 1 ? "s" : ""}...
+        </div>
+      )}
       <ul class="list-inline">
         {processedFiles()
           .sort()
@@ -334,17 +328,16 @@ function Merge() {
           The species of the call must come first. It doesn't matter if you use
           4 or 6 letter (or other) shortcodes for a species, it just has to be
           consistent across labels. I use <code>w</code> for warbler sp.'s, and{" "}
-          <code>th</code> for thrush sp.'s. 
-          Supported shortcodes include:
+          <code>th</code> for thrush sp.'s. Supported shortcodes include:
         </p>
 
-          <ul>
-            {shortBirdCodes.map((sb) => (
-              <li>
-                <code>{sb.SPEC}</code> - {sb.COMMONNAME}
-              </li>
-            ))}
-          </ul>
+        <ul>
+          {shortBirdCodes.map((sb) => (
+            <li>
+              <code>{sb.SPEC}</code> - {sb.COMMONNAME}
+            </li>
+          ))}
+        </ul>
 
         <p>
           After the species, add a space, and then the estimated number of
