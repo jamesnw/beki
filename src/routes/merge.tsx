@@ -2,6 +2,18 @@ import { createSignal } from "solid-js";
 import groups, { type NFCGroup } from "../data/nfc";
 import { ebirdToBirdMap, type BirdCode } from "../codes";
 
+interface ShortBirdCode {
+  SPEC: string;
+  COMMONNAME: string;
+  SORT_INDEX: number;
+}
+
+const shortBirdCodes = [
+  { SPEC: "sp", COMMONNAME: "new world sparrow sp.", SORT_INDEX: 2035.5 },
+  { SPEC: "w", COMMONNAME: "new world warbler sp.", SORT_INDEX: 2215.5 },
+  { SPEC: "th", COMMONNAME: "thrush sp.", SORT_INDEX: 1770 },
+  { SPEC: "p", COMMONNAME: "passerine sp.", SORT_INDEX: 99999 },
+];
 interface Result {
   start: string;
   end: string;
@@ -11,7 +23,7 @@ interface Result {
   additional: number;
   audio: boolean;
   fileName?: string;
-  fullBird?: BirdCode;
+  fullBird?: BirdCode | ShortBirdCode;
   nfcGroup?: NFCGroup;
 }
 
@@ -65,12 +77,14 @@ const processLine = (line: string) => {
 function Merge() {
   const [results, setResults] = createSignal<Result[]>([]);
   const [processedFiles, setProcessedFiles] = createSignal<string[]>([]);
-  const [excludedFiles, setExcludedFiles] = createSignal<Set<string>>(new Set());
+  const [excludedFiles, setExcludedFiles] = createSignal<Set<string>>(
+    new Set(),
+  );
   const [combine, setCombine] = createSignal(true);
   const [sortBy, setSortBy] = createSignal<"count" | "name" | "order">("count");
 
   const activeResults = () => {
-    return results().filter(r => !excludedFiles().has(r.fileName || ''));
+    return results().filter((r) => !excludedFiles().has(r.fileName || ""));
   };
 
   const grouped = () => {
@@ -97,12 +111,15 @@ function Merge() {
           end: item.end,
           file: item.fileName,
         })),
-        fullBird: ebirdToBirdMap.get(name),
+        fullBird:
+          ebirdToBirdMap.get(name) ||
+          shortBirdCodes.find((sb) => sb.SPEC === name),
         nfcGroup: groups.get(name),
       }))
       .sort((a, b) => (b?.count ?? 1) - (a?.count ?? 1));
     return res;
   };
+
   const sortedDisplay = () => {
     switch (sortBy()) {
       case "count":
@@ -123,7 +140,7 @@ function Merge() {
   };
 
   const toggleFileExclusion = (fileName: string) => {
-    setExcludedFiles(prev => {
+    setExcludedFiles((prev) => {
       const next = new Set(prev);
       if (next.has(fileName)) {
         next.delete(fileName);
@@ -226,7 +243,9 @@ function Merge() {
             <li
               style={{
                 opacity: excludedFiles().has(f) ? 0.5 : 1,
-                "text-decoration": excludedFiles().has(f) ? "line-through" : "none",
+                "text-decoration": excludedFiles().has(f)
+                  ? "line-through"
+                  : "none",
               }}
             >
               <label>
@@ -273,11 +292,16 @@ function Merge() {
                 <td>{r.totalCount}</td>
                 <td>{r.audio ? "Yes" : "No"}</td>
                 <td>
-                  {r.fullBird && (
-                    <a target="_blank" href={`/bird/${r.fullBird.SPEC}`}>
-                      {r.fullBird.COMMONNAME}
-                    </a>
-                  )}
+                  {r.fullBird &&
+                    (shortBirdCodes.find(
+                      (sb) => sb.SPEC === r.fullBird?.SPEC,
+                    ) ? (
+                      <span>{r.fullBird.COMMONNAME}</span>
+                    ) : (
+                      <a target="_blank" href={`/bird/${r.fullBird.SPEC}`}>
+                        {r.fullBird.COMMONNAME}
+                      </a>
+                    ))}
                   {r.nfcGroup && (
                     <a target="_blank" href={`/nfc#${r.name}`}>
                       {r.nfcGroup.description}
@@ -310,8 +334,18 @@ function Merge() {
           The species of the call must come first. It doesn't matter if you use
           4 or 6 letter (or other) shortcodes for a species, it just has to be
           consistent across labels. I use <code>w</code> for warbler sp.'s, and{" "}
-          <code>th</code> for thrush sp.'s.
+          <code>th</code> for thrush sp.'s. 
+          Supported shortcodes include:
         </p>
+
+          <ul>
+            {shortBirdCodes.map((sb) => (
+              <li>
+                <code>{sb.SPEC}</code> - {sb.COMMONNAME}
+              </li>
+            ))}
+          </ul>
+
         <p>
           After the species, add a space, and then the estimated number of
           birds. If there are more NFCs then birds, add <code>+</code> and then
