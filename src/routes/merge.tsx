@@ -2,6 +2,8 @@ import { createSignal, onCleanup } from "solid-js";
 import groups, { type NFCGroup } from "../data/nfc";
 import { ebirdToBirdMap, type BirdCode } from "../codes";
 import FileProcessorWorker from "../workers/fileProcessor.worker.ts?worker";
+import type { ProcessFileResponse } from "../workers/fileProcessor.worker";
+import Sparkline from "../components/Sparkline";
 
 interface ShortBirdCode {
   SPEC: string;
@@ -34,6 +36,9 @@ function Merge() {
   const [excludedFiles, setExcludedFiles] = createSignal<Set<string>>(
     new Set(),
   );
+  const [fileBucketCounts, setFileBucketCounts] = createSignal<
+    Record<string, Record<string, number>>
+  >({});
   const [combine, setCombine] = createSignal(true);
   const [sortBy, setSortBy] = createSignal<"count" | "name" | "order">("count");
   const [processingFiles, setProcessingFiles] = createSignal<Set<string>>(
@@ -44,9 +49,13 @@ function Merge() {
   const worker = new FileProcessorWorker();
 
   // Handle messages from the worker
-  worker.onmessage = (event: MessageEvent) => {
+  worker.onmessage = (event: MessageEvent<ProcessFileResponse>) => {
     if (event.data.type === "FILE_PROCESSED") {
-      const { results: newResults, fileName } = event.data;
+      const { results: newResults, fileName, bucketCounts } = event.data;
+      setFileBucketCounts((prev) => ({
+        ...prev,
+        [fileName]: bucketCounts,
+      }));
 
       // Remove old results from the same file, then add new results
       setResults((res) => [
@@ -84,6 +93,13 @@ function Merge() {
       activeResults(),
       (l) => groups.get(l.name)?.parent || l.name,
     );
+  };
+
+  const maxBucketCount = () => {
+    const allCounts = Object.values(fileBucketCounts()).flatMap((bc) =>
+      Object.values(bc),
+    );
+    return Math.max(...allCounts, 0);
   };
 
   const display = () => {
@@ -248,7 +264,13 @@ function Merge() {
                   checked={!excludedFiles().has(f)}
                   onChange={() => toggleFileExclusion(f)}
                 />
-                {f}
+                <div class="flex direction-column">
+                  <Sparkline
+                    data={fileBucketCounts()[f]}
+                    maxBucketCount={maxBucketCount()}
+                  />
+                  <small>{f}</small>
+                </div>
               </label>
             </li>
           ))}
