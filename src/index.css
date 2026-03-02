@@ -103,3 +103,11 @@ body {
     }
   }
 }
+
+.ebird-export {
+  th, td{
+    &:empty {
+      background: var(--color-warning-fill-accent);
+    }
+  }
+}

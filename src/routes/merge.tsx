@@ -4,6 +4,7 @@ import { ebirdToBirdMap, type BirdCode } from "../codes";
 import FileProcessorWorker from "../workers/fileProcessor.worker.ts?worker";
 import type { ProcessFileResponse } from "../workers/fileProcessor.worker";
 import Sparkline from "../components/Sparkline";
+import EBirdExport from "../components/EBirdExport";
 
 interface ShortBirdCode {
   SPEC: string;
@@ -26,6 +27,17 @@ interface Result {
   additional: number;
   audio: boolean;
   fileName?: string;
+  fullBird?: BirdCode | ShortBirdCode;
+  nfcGroup?: NFCGroup;
+}
+
+export interface DisplayResult {
+  name: string;
+  count?: number;
+  totalCount?: number;
+  additional?: number;
+  audio?: boolean;
+  times?: { start: string; end: string; file: string }[];
   fullBird?: BirdCode | ShortBirdCode;
   nfcGroup?: NFCGroup;
 }
@@ -103,20 +115,20 @@ function Merge() {
   };
 
   const display = () => {
-    const res = Object.entries(grouped())
+    const res : DisplayResult[] = Object.entries(grouped())
       .map(([name, items]) => ({
         name,
         totalCount: items?.reduce(
-          (acc, item) => acc + item.count + item.additional,
+          (acc, item) => acc + (item.count ?? 0) + (item.additional ?? 0),
           0,
         ),
-        additional: items?.reduce((acc, item) => acc + item.additional, 0),
-        count: items?.reduce((acc, item) => acc + item.count, 0),
+        additional: items?.reduce((acc, item) => acc + (item.additional ?? 0), 0),
+        count: items?.reduce((acc, item) => acc + (item.count ?? 0), 0),
         audio: items?.some((item) => item.audio),
         times: items?.map((item) => ({
           start: item.start,
           end: item.end,
-          file: item.fileName,
+          file: item.fileName ?? '',
         })),
         fullBird:
           ebirdToBirdMap.get(name) ||
@@ -127,6 +139,12 @@ function Merge() {
     return res;
   };
 
+  const orderSortedDisplay = () => display().sort(
+          (a, b) =>
+            (a.fullBird?.SORT_INDEX ?? 99999) -
+            (b.fullBird?.SORT_INDEX ?? 99999),
+        )
+
   const sortedDisplay = () => {
     switch (sortBy()) {
       case "count":
@@ -134,11 +152,7 @@ function Merge() {
       case "name":
         return display().sort((a, b) => a.name.localeCompare(b.name));
       case "order":
-        return display().sort(
-          (a, b) =>
-            (a.fullBird?.SORT_INDEX ?? 99999) -
-            (b.fullBird?.SORT_INDEX ?? 99999),
-        );
+        return orderSortedDisplay();
     }
   };
 
@@ -328,6 +342,10 @@ function Merge() {
             ))}
           </table>
         </>
+      )}
+      <hr />
+      {orderSortedDisplay().length > 0 && (
+        <EBirdExport results={orderSortedDisplay()}/>
       )}
       <hr />
       <section class="callout">
