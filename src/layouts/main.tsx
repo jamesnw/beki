@@ -1,11 +1,11 @@
 import type { RouteSectionProps } from "@solidjs/router";
 import Header from "../components/header";
 
-const Main = ({ children }: RouteSectionProps) => {
+const Main = (props: RouteSectionProps) => {
   return (
     <div class="container-2xl">
       <Header />
-      <main>{children}</main>
+      <main>{props.children}</main>
       <footer class="margin-start-6xl">
         By <a href="https://jamessw.com">James</a>.
       </footer>

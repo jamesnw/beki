@@ -1,21 +1,20 @@
+import { createMemo } from "solid-js";
+
 const SVG_WIDTH = 100;
 const SVG_HEIGHT = 30;
-export default function Sparkline({
-  data,
-  maxBucketCount,
-}: {
+export default function Sparkline(props: {
   data: Record<string, number>;
   maxBucketCount: number;
 }) {
-  // const maxCount = Math.max(...Object.values(data), 0);
-  const maxCount = maxBucketCount || 1;
-  const points = Object.values(data)
-    .map((count, index, arr) => {
-      const x = (index / (arr.length - 1)) * SVG_WIDTH;
-      const y = SVG_HEIGHT - (count / maxCount) * SVG_HEIGHT;
-      return `${x},${y}`;
-    })
-    .join(" ");
+  const points = createMemo(() =>
+    Object.values(props.data)
+      .map((count, index, arr) => {
+        const x = (index / (arr.length - 1)) * SVG_WIDTH;
+        const y = SVG_HEIGHT - (count / (props.maxBucketCount || 1)) * SVG_HEIGHT;
+        return `${x},${y}`;
+      })
+      .join(" "),
+  );
 
   return (
     <svg
@@ -28,7 +27,7 @@ export default function Sparkline({
         fill="none"
         stroke="var(--color-primary-fill-vivid)"
         stroke-width="2"
-        points={points}
+        points={points()}
       />
     </svg>
   );

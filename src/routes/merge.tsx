@@ -1,4 +1,4 @@
-import { createSignal, onCleanup } from "solid-js";
+import { createSignal, onCleanup, For } from "solid-js";
 import groups, { type NFCGroup } from "../data/nfc";
 import { ebirdToBirdMap, type BirdCode } from "../codes";
 import FileProcessorWorker from "../workers/fileProcessor.worker.ts?worker";
@@ -247,9 +247,8 @@ function Merge() {
         </div>
       )}
       <ul class="list-inline">
-        {processedFiles()
-          .sort()
-          .map((f) => (
+        <For each={processedFiles().sort()}>
+          {(f) => (
             <li
               style={{
                 opacity: excludedFiles().has(f) ? 0.5 : 1,
@@ -273,7 +272,8 @@ function Merge() {
                 </div>
               </label>
             </li>
-          ))}
+          )}
+        </For>
       </ul>
 
       <hr />
@@ -292,40 +292,44 @@ function Merge() {
                 <th>Info</th>
               </tr>
             </thead>
-            {sortedDisplay().map((r) => (
-              <tr>
-                <td>
-                  <details>
-                    <summary>{r.name}</summary>
-                    {r.times?.sort().map((t) => (
-                      <div>
-                        {t.file}:{t.start}-{t.end}
-                      </div>
-                    ))}
-                  </details>
-                </td>
-                <td>{r.count}</td>
-                <td>{r.totalCount}</td>
-                <td>{r.audio ? "Yes" : "No"}</td>
-                <td>
-                  {r.fullBird &&
-                    (shortBirdCodes.find(
-                      (sb) => sb.SPEC === r.fullBird?.SPEC,
-                    ) ? (
-                      <span>{r.fullBird.COMMONNAME}</span>
-                    ) : (
-                      <a target="_blank" href={`/bird/${r.fullBird.SPEC}`}>
-                        {r.fullBird.COMMONNAME}
+            <For each={sortedDisplay()}>
+              {(r) => (
+                <tr>
+                  <td>
+                    <details>
+                      <summary>{r.name}</summary>
+                      <For each={r.times?.sort() ?? []}>
+                        {(t) => (
+                          <div>
+                            {t.file}:{t.start}-{t.end}
+                          </div>
+                        )}
+                      </For>
+                    </details>
+                  </td>
+                  <td>{r.count}</td>
+                  <td>{r.totalCount}</td>
+                  <td>{r.audio ? "Yes" : "No"}</td>
+                  <td>
+                    {r.fullBird &&
+                      (shortBirdCodes.find(
+                        (sb) => sb.SPEC === r.fullBird?.SPEC,
+                      ) ? (
+                        <span>{r.fullBird.COMMONNAME}</span>
+                      ) : (
+                        <a target="_blank" href={`/bird/${r.fullBird.SPEC}`}>
+                          {r.fullBird.COMMONNAME}
+                        </a>
+                      ))}
+                    {r.nfcGroup && (
+                      <a target="_blank" href={`/nfc#${r.name}`}>
+                        {r.nfcGroup.description}
                       </a>
-                    ))}
-                  {r.nfcGroup && (
-                    <a target="_blank" href={`/nfc#${r.name}`}>
-                      {r.nfcGroup.description}
-                    </a>
-                  )}
-                </td>
-              </tr>
-            ))}
+                    )}
+                  </td>
+                </tr>
+              )}
+            </For>
           </table>
         </>
       )}
@@ -354,11 +358,13 @@ function Merge() {
         </p>
 
         <ul>
-          {shortBirdCodes.map((sb) => (
-            <li>
-              <code>{sb.SPEC}</code> - {sb.COMMONNAME}
-            </li>
-          ))}
+          <For each={shortBirdCodes}>
+            {(sb) => (
+              <li>
+                <code>{sb.SPEC}</code> - {sb.COMMONNAME}
+              </li>
+            )}
+          </For>
         </ul>
 
         <p>

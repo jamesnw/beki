@@ -1,4 +1,4 @@
-import { createSignal } from "solid-js";
+import { createSignal, For } from "solid-js";
 import Zeeper from "../components/Zeeper";
 
 const inputs = [
@@ -53,29 +53,31 @@ export default function NfcZeep() {
   return (
     <div>
       <h1>Zeeps</h1>
-      {inputs.map((input) => (
-        <div>
-          <label for={input.name}>
-            {input.label} {measured()[input.name]}
-            {input.unit}
-          </label>
-          <input
-            type="range"
-            id={input.name}
-            name={input.name}
-            min={input.min}
-            max={input.max}
-            step={input.step ?? 1}
-            value={measured()[input.name]}
-            onInput={(e) =>
-              setMeasured({
-                ...measured(),
-                [input.name]: parseFloat(e.currentTarget.value),
-              })
-            }
-          />
-        </div>
-      ))}
+      <For each={inputs}>
+        {(input) => (
+          <div>
+            <label for={input.name}>
+              {input.label} {measured()[input.name]}
+              {input.unit}
+            </label>
+            <input
+              type="range"
+              id={input.name}
+              name={input.name}
+              min={input.min}
+              max={input.max}
+              step={input.step ?? 1}
+              value={measured()[input.name]}
+              onInput={(e) =>
+                setMeasured({
+                  ...measured(),
+                  [input.name]: parseFloat(e.currentTarget.value),
+                })
+              }
+            />
+          </div>
+        )}
+      </For>
       <Zeeper measured={measured} />
       <p class="margin-start-l">
         This tool uses the ranges from OldBird's{" "}
