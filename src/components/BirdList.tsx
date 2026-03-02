@@ -1,3 +1,4 @@
+import { For } from "solid-js";
 import birds from "../codes.ts";
 import BirdListItem from "./BirdListItem.tsx";
 import { options } from "../optionStore.ts";
@@ -26,9 +27,9 @@ function BirdList() {
         <div class="callout warning">No matching birds found.</div>
       )}
       <ul class="list-unstyled">
-        {filteredBirds().map((bird) => (
-          <BirdListItem {...bird} />
-        ))}
+        <For each={filteredBirds()}>
+          {(bird) => <BirdListItem {...bird} />}
+        </For>
       </ul>
     </>
   );

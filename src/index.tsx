@@ -15,12 +15,12 @@ const root = document.getElementById("root");
 render(
   () => (
     <Router root={Main}>
-      <Route path="/" component={App}></Route>
-      <Route path="/about" component={About}></Route>
-      <Route path="/nfc" component={NfcGroups}></Route>
-      <Route path="/nfc/zeep" component={NfcZeep}></Route>
-      <Route path="/nfc/merge" component={Merge}></Route>
-      <Route path="/bird/:spec" component={Bird}></Route>
+      <Route path="/" component={App} />
+      <Route path="/about" component={About} />
+      <Route path="/nfc" component={NfcGroups} />
+      <Route path="/nfc/zeep" component={NfcZeep} />
+      <Route path="/nfc/merge" component={Merge} />
+      <Route path="/bird/:spec" component={Bird} />
     </Router>
   ),
   root!,

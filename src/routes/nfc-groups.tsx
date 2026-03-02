@@ -1,3 +1,4 @@
+import { For } from "solid-js";
 import { nfcWithBirds } from "../codes";
 import nfcGroups from "../data/nfc";
 
@@ -15,9 +16,7 @@ function NfcGroups() {
   return (
     <div
       class="toc-watch"
-      style={`--scopes: ${Object.keys(nfcWithBirds)
-        .map((k) => `--${k}`)
-        .join(",")}`}
+      style={{ "--scopes": Object.keys(nfcWithBirds).map((k) => `--${k}`).join(",") }}
     >
       <h1>NFC Groups</h1>
       <div class="callout secondary">
@@ -30,10 +29,9 @@ function NfcGroups() {
       </div>
       <div class="sidecar-end">
         <kelp-heading-anchors>
-          {Object.entries(nfcWithBirds)
-            .sort(([a], [b]) => a.localeCompare(b))
-            .map(([nfcGroup, birds]) => (
-              <section style={`--is:--${nfcGroup}`}>
+          <For each={Object.entries(nfcWithBirds).sort(([a], [b]) => a.localeCompare(b))}>
+            {([nfcGroup, birds]) => (
+              <section style={{ "--is": `--${nfcGroup}` }}>
                 <h2 id={nfcGroup}>{nfcGroup}</h2>
                 <p>
                   {nfcGroups.get(nfcGroup)?.description}{" "}
@@ -48,29 +46,32 @@ function NfcGroups() {
                   )}
                 </p>
                 <ul>
-                  {birds.map((bird) => (
-                    <li>
-                      <a href={`/bird/${bird.SPEC}`}>{bird.COMMONNAME}</a> (
-                      {bird.SPEC})
-                    </li>
-                  ))}
+                  <For each={birds}>
+                    {(bird) => (
+                      <li>
+                        <a href={`/bird/${bird.SPEC}`}>{bird.COMMONNAME}</a> (
+                        {bird.SPEC})
+                      </li>
+                    )}
+                  </For>
                 </ul>
               </section>
-            ))}
+            )}
+          </For>
         </kelp-heading-anchors>
         <div>
           <nav id="toc" class="callout vivid primary">
             <h2>Groups</h2>
             <ul class="list-unstyled">
-              {Object.keys(nfcWithBirds)
-                .sort((a, b) => a.localeCompare(b))
-                .map((nfcGroup) => (
-                  <li style={`--for:--${nfcGroup}`}>
+              <For each={Object.keys(nfcWithBirds).sort((a, b) => a.localeCompare(b))}>
+                {(nfcGroup) => (
+                  <li style={{ "--for": `--${nfcGroup}` }}>
                     <a class="toc-link" href={`#${nfcGroup}`}>
                       {nfcGroup}
                     </a>
                   </li>
-                ))}
+                )}
+              </For>
             </ul>
           </nav>
         </div>

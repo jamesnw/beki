@@ -2,6 +2,7 @@ import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 import css from "@eslint/css";
+import solid from "eslint-plugin-solid";
 import { defineConfig, globalIgnores } from "eslint/config";
 
 export default defineConfig([
@@ -16,6 +17,10 @@ export default defineConfig([
     languageOptions: { globals: globals.browser },
   },
   tseslint.configs.recommended,
+  {
+    files: ["src/**/*.{jsx,tsx}"],
+    ...solid.configs["flat/typescript"],
+  },
   {
     files: ["src/**/*.css"],
     plugins: { css },
