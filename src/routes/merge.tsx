@@ -40,6 +40,7 @@ export interface DisplayResult {
   times?: { start: string; end: string; file: string }[];
   fullBird?: BirdCode | ShortBirdCode;
   nfcGroup?: NFCGroup;
+  fileCounts?: Record<string, { count: number; additional: number }>;
 }
 
 function Merge() {
@@ -114,7 +115,13 @@ function Merge() {
     return Math.max(...allCounts, 0);
   };
 
+  const activeFilesList = () =>
+    processedFiles()
+      .filter((f) => !excludedFiles().has(f))
+      .sort();
+
   const display = () => {
+    const files = activeFilesList();
     const res : DisplayResult[] = Object.entries(grouped())
       .map(([name, items]) => ({
         name,
@@ -134,6 +141,15 @@ function Merge() {
           ebirdToBirdMap.get(name) ||
           shortBirdCodes.find((sb) => sb.SPEC === name),
         nfcGroup: groups.get(name),
+        fileCounts: Object.fromEntries(
+          files.map((f) => [
+            f,
+            {
+              count: items?.filter((i) => i.fileName === f).reduce((acc, i) => acc + i.count, 0) ?? 0,
+              additional: items?.filter((i) => i.fileName === f).reduce((acc, i) => acc + i.additional, 0) ?? 0,
+            },
+          ]),
+        ),
       }))
       .sort((a, b) => (b?.count ?? 1) - (a?.count ?? 1));
     return res;
@@ -349,7 +365,7 @@ function Merge() {
       )}
       <hr />
       {orderSortedDisplay().length > 0 && (
-        <EBirdExport results={orderSortedDisplay()}/>
+        <EBirdExport results={orderSortedDisplay()} activeFiles={activeFilesList()} />
       )}
       <hr />
       <section class="callout">

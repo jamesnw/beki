@@ -1,4 +1,4 @@
-import { createSignal } from "solid-js";
+import { createSignal, For, Index } from "solid-js";
 import type { DisplayResult } from "../routes/merge";
 
 const STORAGE_KEY = "ebird-defaults";
@@ -49,9 +49,8 @@ const rows: { label: string; display?: string; default?: string }[] = [
     label: "Notes",
   },
 ];
-function EBirdExport(props: { results: DisplayResult[] }) {
-  console.log("EBirdExport results:", props.results);
-  let tbody: HTMLTableSectionElement | null = null;
+function EBirdExport(props: { results: DisplayResult[]; activeFiles: string[] }) {
+  const [tbody, setTbody] = createSignal<HTMLTableSectionElement | null>(null);
 
   const loadedDefaults = (): (string | undefined)[] => {
     try {
@@ -67,8 +66,8 @@ function EBirdExport(props: { results: DisplayResult[] }) {
   );
 
   const storeDefaults = () => {
-    if (!tbody) return;
-    const values = [...tbody.childNodes]
+    if (!tbody()) return;
+    const values = [...tbody()!.childNodes]
       .slice(0, rows.length)
       .map((row) => [...row.childNodes][2]?.textContent?.trim() ?? "");
     localStorage.setItem(STORAGE_KEY, JSON.stringify(values));
@@ -76,8 +75,8 @@ function EBirdExport(props: { results: DisplayResult[] }) {
   };
 
   const makeExport = () => {
-    if (!tbody) return;
-    const csv = [...tbody.childNodes].reduce((acc, row) => {
+    if (!tbody()) return;
+    const csv = [...tbody()!.childNodes].reduce((acc, row) => {
       const cells = [...row.childNodes].map(
         (cell) => cell.textContent?.trim() ?? "",
       );
@@ -92,6 +91,41 @@ function EBirdExport(props: { results: DisplayResult[] }) {
     a.click();
     URL.revokeObjectURL(url);
   };
+  const getWeather = (col = 2) => {
+    if (!tbody()) return;
+    const lat = [...tbody()!.childNodes][1].childNodes[col]?.textContent?.trim();
+    const lon = [...tbody()!.childNodes][2].childNodes[col]?.textContent?.trim();
+    const date = [...tbody()!.childNodes][3].childNodes[col]?.textContent?.trim();
+    const starttime = [...tbody()!.childNodes][4].childNodes[col]?.textContent?.trim();
+    const duration = [...tbody()!.childNodes][5].childNodes[col]?.textContent?.trim();
+    if (!lat || !lon || !date) {
+      alert("Please fill in Latitude, Longitude, and Date to get weather");
+      return;
+    }
+    const url = 'https://raincrow.app/?/preGetWeather='
+    const body = JSON.stringify({
+      latlon:	`${lat},${lon}`,
+      date:	`${date}`,
+      startTime:starttime,
+      duration:	`${duration}`
+    })
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body,
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Weather data:", data);
+        alert(`Weather data: ${JSON.stringify(data)}`);
+      })
+      .catch((err) => {
+        console.error("Error fetching weather:", err);
+        alert("Error fetching weather");
+      });
+  }
   
   return (
     <section class="ebird-export">
@@ -99,25 +133,42 @@ function EBirdExport(props: { results: DisplayResult[] }) {
 
       <button onClick={makeExport}>Export</button>
       <button onClick={storeDefaults}>Store defaults</button>
+      <button onClick={()=>getWeather()}>Get Weather</button>
+
       <table contentEditable class="table table-striped">
-        <tbody ref={tbody}>
-          {rows.map((row, i) => (
-            <tr>
-              <th scope="row">{row.display ?? row.label}</th>
-              <td> </td>
-              <td>{defaults()[i]}</td>
-            </tr>
-          ))}
-          {props.results.map((result) => (
-            <tr>
-              <th scope="row">{result.fullBird?.COMMONNAME ?? result.name}</th>
-              <td> </td>
-              <td>
-                {result.count ?? 0}|NFC{" "}
-                {(result.count ?? 0) + (result.additional ?? 0)}
-              </td>
-            </tr>
-          ))}
+        <tbody ref={setTbody}>
+          <Index each={rows}>
+            {(row, i) => (
+              <tr>
+                <th scope="row">{row().display ?? row().label}</th>
+                <td> </td>
+                <Index each={props.activeFiles}>
+                  {() => <td>{defaults()[i]}</td>}
+                </Index>
+              </tr>
+            )}
+          </Index>
+          <For each={props.results}>
+            {(result) => (
+              <tr>
+                <th scope="row">{result.fullBird?.COMMONNAME ?? result.name}</th>
+                <td> </td>
+                <Index each={props.activeFiles}>
+                  {(file) => {
+                    const fc = () => result.fileCounts?.[file()];
+                    const count = () => fc()?.count ?? 0;
+                    const additional = () => fc()?.additional ?? 0;
+                    if (count() === 0) return <td> </td>;
+                    return (
+                      <td>
+                        {count()}|NFC {count() + additional()}
+                      </td>
+                    );
+                  }}
+                </Index>
+              </tr>
+            )}
+          </For>
         </tbody>
       </table>
     </section>
