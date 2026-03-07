@@ -1,5 +1,5 @@
 import { createSignal, For, Index } from "solid-js";
-import type { DisplayResult } from "../routes/merge";
+import type { DisplayResult } from "../lib/aggregateResults";
 
 const STORAGE_KEY = "ebird-defaults";
 

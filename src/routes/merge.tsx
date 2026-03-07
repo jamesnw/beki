@@ -1,47 +1,13 @@
 import { createSignal, onCleanup, For } from "solid-js";
-import groups, { type NFCGroup } from "../data/nfc";
-import { ebirdToBirdMap, type BirdCode } from "../codes";
 import FileProcessorWorker from "../workers/fileProcessor.worker.ts?worker";
 import type { ProcessFileResponse } from "../workers/fileProcessor.worker";
+import type { Result } from "../lib/processFile";
+import { aggregateResults, orderSorted, shortBirdCodes } from "../lib/aggregateResults";
+import type { DisplayResult } from "../lib/aggregateResults";
 import Sparkline from "../components/Sparkline";
 import EBirdExport from "../components/EBirdExport";
 
-interface ShortBirdCode {
-  SPEC: string;
-  COMMONNAME: string;
-  SORT_INDEX: number;
-}
-
-const shortBirdCodes = [
-  { SPEC: "sp", COMMONNAME: "new world sparrow sp.", SORT_INDEX: 2035.5 },
-  { SPEC: "w", COMMONNAME: "new world warbler sp.", SORT_INDEX: 2215.5 },
-  { SPEC: "th", COMMONNAME: "thrush sp.", SORT_INDEX: 1770 },
-  { SPEC: "p", COMMONNAME: "passerine sp.", SORT_INDEX: 99999 },
-];
-interface Result {
-  start: string;
-  end: string;
-  name: string;
-  strength?: string;
-  count: number;
-  additional: number;
-  audio: boolean;
-  fileName?: string;
-  fullBird?: BirdCode | ShortBirdCode;
-  nfcGroup?: NFCGroup;
-}
-
-export interface DisplayResult {
-  name: string;
-  count?: number;
-  totalCount?: number;
-  additional?: number;
-  audio?: boolean;
-  times?: { start: string; end: string; file: string }[];
-  fullBird?: BirdCode | ShortBirdCode;
-  nfcGroup?: NFCGroup;
-  fileCounts?: Record<string, { count: number; additional: number }>;
-}
+export type { DisplayResult };
 
 function Merge() {
   const [results, setResults] = createSignal<Result[]>([]);
@@ -100,14 +66,6 @@ function Merge() {
     return results().filter((r) => !excludedFiles().has(r.fileName || ""));
   };
 
-  const grouped = () => {
-    if (!combine()) return Object.groupBy(activeResults(), (l) => l.name);
-    return Object.groupBy(
-      activeResults(),
-      (l) => groups.get(l.name)?.parent || l.name,
-    );
-  };
-
   const maxBucketCount = () => {
     const allCounts = Object.values(fileBucketCounts()).flatMap((bc) =>
       Object.values(bc),
@@ -120,53 +78,17 @@ function Merge() {
       .filter((f) => !excludedFiles().has(f))
       .sort();
 
-  const display = () => {
-    const files = activeFilesList();
-    const res : DisplayResult[] = Object.entries(grouped())
-      .map(([name, items]) => ({
-        name,
-        totalCount: items?.reduce(
-          (acc, item) => acc + (item.count ?? 0) + (item.additional ?? 0),
-          0,
-        ),
-        additional: items?.reduce((acc, item) => acc + (item.additional ?? 0), 0),
-        count: items?.reduce((acc, item) => acc + (item.count ?? 0), 0),
-        audio: items?.some((item) => item.audio),
-        times: items?.map((item) => ({
-          start: item.start,
-          end: item.end,
-          file: item.fileName ?? '',
-        })),
-        fullBird:
-          ebirdToBirdMap.get(name) ||
-          shortBirdCodes.find((sb) => sb.SPEC === name),
-        nfcGroup: groups.get(name),
-        fileCounts: Object.fromEntries(
-          files.map((f) => [
-            f,
-            {
-              count: items?.filter((i) => i.fileName === f).reduce((acc, i) => acc + i.count, 0) ?? 0,
-              additional: items?.filter((i) => i.fileName === f).reduce((acc, i) => acc + i.additional, 0) ?? 0,
-            },
-          ]),
-        ),
-      }))
-      .sort((a, b) => (b?.count ?? 1) - (a?.count ?? 1));
-    return res;
-  };
+  const display = () =>
+    aggregateResults(activeResults(), activeFilesList(), combine());
 
-  const orderSortedDisplay = () => display().sort(
-          (a, b) =>
-            (a.fullBird?.SORT_INDEX ?? 99999) -
-            (b.fullBird?.SORT_INDEX ?? 99999),
-        )
+  const orderSortedDisplay = () => orderSorted(display());
 
   const sortedDisplay = () => {
     switch (sortBy()) {
       case "count":
-        return display().sort((a, b) => (b?.count ?? 1) - (a?.count ?? 1));
+        return [...display()].sort((a, b) => (b?.count ?? 1) - (a?.count ?? 1));
       case "name":
-        return display().sort((a, b) => a.name.localeCompare(b.name));
+        return [...display()].sort((a, b) => a.name.localeCompare(b.name));
       case "order":
         return orderSortedDisplay();
     }
