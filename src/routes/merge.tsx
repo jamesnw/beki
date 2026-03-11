@@ -1,4 +1,4 @@
-import { createSignal, onCleanup, For } from "solid-js";
+import { createSignal, onCleanup, For, Show } from "solid-js";
 import FileProcessorWorker from "../workers/fileProcessor.worker.ts?worker";
 import type { ProcessFileResponse } from "../workers/fileProcessor.worker";
 import type { Result } from "../lib/processFile";
@@ -23,6 +23,10 @@ function Merge() {
   const [processingFiles, setProcessingFiles] = createSignal<Set<string>>(
     new Set(),
   );
+  const [fileTexts, setFileTexts] = createSignal<Record<string, string>>({});
+  const [editingName, setEditingName] = createSignal<string | null>(null);
+  const [editValue, setEditValue] = createSignal("");
+  const [activeTab, setActiveTab] = createSignal<"results" | "ebird">("results");
 
   // Initialize the worker
   const worker = new FileProcessorWorker();
@@ -98,6 +102,26 @@ function Merge() {
     return display().reduce((acc, item) => acc + (item.totalCount ?? 0), 0);
   };
 
+  const renameSpecies = (oldName: string, newName: string) => {
+    const trimmed = newName.trim();
+    if (!trimmed || trimmed === oldName) {
+      setEditingName(null);
+      return;
+    }
+    const escaped = oldName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const re = new RegExp(`^(\\S+\\t\\S+\\t)${escaped}(\\s|$)`, "gm");
+    const texts = fileTexts();
+    Object.entries(texts).forEach(([fileName, text]) => {
+      if (!re.test(text)) return;
+      re.lastIndex = 0;
+      const newText = text.replace(re, `$1${trimmed}$2`);
+      setFileTexts((prev) => ({ ...prev, [fileName]: newText }));
+      setProcessingFiles((prev) => new Set([...prev, fileName]));
+      worker.postMessage({ type: "PROCESS_FILE", content: newText, fileName });
+    });
+    setEditingName(null);
+  };
+
   const toggleFileExclusion = (fileName: string) => {
     setExcludedFiles((prev) => {
       const next = new Set(prev);
@@ -127,7 +151,7 @@ function Merge() {
         reader.onload = (e) => {
           const text = e.target?.result;
           if (typeof text === "string") {
-            // Send to worker for processing
+            setFileTexts((prev) => ({ ...prev, [file.name]: text }));
             worker.postMessage({
               type: "PROCESS_FILE",
               content: text,
@@ -162,6 +186,8 @@ function Merge() {
                 setProcessedFiles([]);
                 setExcludedFiles(new Set<string>());
                 setProcessingFiles(new Set<string>());
+                setFileTexts({});
+                setEditingName(null);
               }}
             >
               Clear
@@ -229,67 +255,116 @@ function Merge() {
       </ul>
 
       <hr />
-      {sortedDisplay().length > 0 && (
-        <>
-          <p>
-            {totalBirds()} total birds in {display().length} groups
-          </p>
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Count</th>
-                <th>NFC Total</th>
-                <th>Audio</th>
-                <th>Info</th>
-              </tr>
-            </thead>
-            <For each={sortedDisplay()}>
-              {(r) => (
-                <tr>
-                  <td>
-                    <details>
-                      <summary>{r.name}</summary>
-                      <For each={r.times?.sort() ?? []}>
-                        {(t) => (
-                          <div>
-                            {t.file}:{t.start}-{t.end}
-                          </div>
+      <div class="cluster" role="tablist">
+        <button
+          role="tab"
+          class={activeTab() === "results" ? "primary" : "plain"}
+          onClick={() => setActiveTab("results")}
+        >
+          Results
+        </button>
+        <button
+          role="tab"
+          class={activeTab() === "ebird" ? "primary" : "plain"}
+          onClick={() => setActiveTab("ebird")}
+        >
+          eBird Export
+        </button>
+      </div>
+
+      <Show when={activeTab() === "results"}>
+        <section>
+          <h2>Aggregated results</h2>
+          {sortedDisplay().length > 0 && (
+            <>
+              <p>
+                {totalBirds()} total birds in {display().length} groups
+              </p>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Count</th>
+                    <th>NFC Total</th>
+                    <th>Audio</th>
+                    <th>Info</th>
+                  </tr>
+                </thead>
+                <For each={sortedDisplay()}>
+                  {(r) => (
+                    <tr>
+                      <td>
+                        <Show
+                          when={editingName() === r.name}
+                          fallback={
+                            <details>
+                              <summary>
+                                {r.name}{" "}
+                                <button
+                                  class="size-xs plain"
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    setEditingName(r.name);
+                                    setEditValue(r.name);
+                                  }}
+                                >
+                                  ✎
+                                </button>
+                              </summary>
+                              <For each={r.times?.sort() ?? []}>
+                                {(t) => (
+                                  <div>
+                                    {t.file}:{t.start}-{t.end}
+                                  </div>
+                                )}
+                              </For>
+                            </details>
+                          }
+                        >
+                          <input
+                            value={editValue()}
+                            onInput={(e) => setEditValue(e.currentTarget.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") renameSpecies(r.name, editValue());
+                              if (e.key === "Escape") setEditingName(null);
+                            }}
+                            autofocus
+                          />
+                          <button class="size-xs primary" onClick={() => renameSpecies(r.name, editValue())}>
+                            Save
+                          </button>
+                          <button class="size-xs plain" onClick={() => setEditingName(null)}>Cancel</button>
+                        </Show>
+                      </td>
+                      <td>{r.count}</td>
+                      <td>{r.totalCount}</td>
+                      <td>{r.audio ? "Yes" : "No"}</td>
+                      <td>
+                        {r.fullBird &&
+                          (shortBirdCodes.find(
+                            (sb) => sb.SPEC === r.fullBird?.SPEC,
+                          ) ? (
+                            <span>{r.fullBird.COMMONNAME}</span>
+                          ) : (
+                            <a target="_blank" href={`/bird/${r.fullBird.SPEC}`}>
+                              {r.fullBird.COMMONNAME}
+                            </a>
+                          ))}
+                        {r.nfcGroup && (
+                          <a target="_blank" href={`/nfc#${r.name}`}>
+                            {r.nfcGroup.description}
+                          </a>
                         )}
-                      </For>
-                    </details>
-                  </td>
-                  <td>{r.count}</td>
-                  <td>{r.totalCount}</td>
-                  <td>{r.audio ? "Yes" : "No"}</td>
-                  <td>
-                    {r.fullBird &&
-                      (shortBirdCodes.find(
-                        (sb) => sb.SPEC === r.fullBird?.SPEC,
-                      ) ? (
-                        <span>{r.fullBird.COMMONNAME}</span>
-                      ) : (
-                        <a target="_blank" href={`/bird/${r.fullBird.SPEC}`}>
-                          {r.fullBird.COMMONNAME}
-                        </a>
-                      ))}
-                    {r.nfcGroup && (
-                      <a target="_blank" href={`/nfc#${r.name}`}>
-                        {r.nfcGroup.description}
-                      </a>
-                    )}
-                  </td>
-                </tr>
-              )}
-            </For>
-          </table>
-        </>
-      )}
-      <hr />
-      {orderSortedDisplay().length > 0 && (
-        <EBirdExport results={orderSortedDisplay()} activeFiles={activeFilesList()} />
-      )}
-      <hr />
+                      </td>
+                    </tr>
+                  )}
+                </For>
+              </table>
+            </>
+          )}
+        </section>
+        <hr />
       <section class="callout">
         <h2>Accepted formats</h2>
         <p>
@@ -356,6 +431,16 @@ function Merge() {
           I have enough of my own NFCs to comb through... I don't want yours.
         </p>
       </section>
+      </Show>
+
+      <Show when={activeTab() === "ebird"}>
+        <Show
+          when={orderSortedDisplay().length > 0}
+          fallback={<p>No results yet.</p>}
+        >
+          <EBirdExport results={orderSortedDisplay()} activeFiles={activeFilesList()} />
+        </Show>
+      </Show>
     </div>
   );
 }

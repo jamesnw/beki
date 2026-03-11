@@ -1573,6 +1573,11 @@ inline-style-parser@0.2.7:
   resolved "https://registry.npmjs.org/inline-style-parser/-/inline-style-parser-0.2.7.tgz"
   integrity sha512-Nb2ctOyNR8DqQoR0OwRG95uNWIC0C1lCgf5Naz5H6Ji72KZ8OcFZLz2P5sNgwlyoJ8Yif11oMuYs5pBQa86csA==
 
+invokers-polyfill@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/invokers-polyfill/-/invokers-polyfill-1.0.1.tgz#17d8c1a7db6fde7b2fcfd809b01f00a17caa22b6"
+  integrity sha512-U+fck31TKDgoazU6HD0t2WJEo6sY2dSeOAyaFMpP3bljrEdPNzH0eyWl/pHEi6yY790FDxUd+JZ28kyQ6++arg==
+
 is-extglob@^2.1.1:
   version "2.1.1"
   resolved "https://registry.npmjs.org/is-extglob/-/is-extglob-2.1.1.tgz"
