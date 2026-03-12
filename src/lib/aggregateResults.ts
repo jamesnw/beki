@@ -81,6 +81,17 @@ export function orderSorted(results: DisplayResult[]): DisplayResult[] {
   );
 }
 
+/** Format bird rows as a single aggregated CSV column. */
+export function formatBirdCsvRowsAggregated(results: DisplayResult[]): string[] {
+  return results.map((result) => {
+    const name = result.fullBird?.COMMONNAME ?? result.name;
+    const count = result.count ?? 0;
+    const totalCount = result.totalCount ?? 0;
+    const dataCell = count > 0 ? `${count}|NFC ${totalCount}` : " ";
+    return [name, " ", dataCell].join(",");
+  });
+}
+
 /** Format bird rows as CSV lines (one column per file after the two header columns). */
 export function formatBirdCsvRows(
   results: DisplayResult[],

@@ -6,6 +6,7 @@ import {
   aggregateResults,
   orderSorted,
   formatBirdCsvRows,
+  formatBirdCsvRowsAggregated,
 } from "../src/lib/aggregateResults";
 
 const fixtureDir = join(import.meta.dirname, "fixtures");
@@ -135,6 +136,54 @@ describe("aggregateResults - multiple files", () => {
     expect(byName["w"].count).toBe(23);
     // savspa: 1 (L0) + 2 (L1) + 1 (L5) = 4
     expect(byName["savspa"].count).toBe(4);
+  });
+});
+
+// ─── formatBirdCsvRowsAggregated ───────────────────────────────────────────
+
+describe("formatBirdCsvRowsAggregated", () => {
+  test("sums counts across all files into one column", () => {
+    const files = ["Labels 0.txt", "Labels 1.txt"];
+    const allResults = files.flatMap((f) => processInput(readFixture(f), f));
+    const display = aggregateResults(allResults, files, false);
+    const ordered = orderSorted(display);
+    const rows = formatBirdCsvRowsAggregated(ordered);
+
+    // whtspa: 4 (L0) + 4 (L1) = 8 count, no additional
+    const whtspaRow = rows.find((r) => r.startsWith("White-throated Sparrow"));
+    expect(whtspaRow).toBe("White-throated Sparrow, ,8|NFC 8");
+
+    // w: 1 (L0) + 3 (L1) = 4 count, no additional
+    const wRow = rows.find((r) => r.startsWith("new world warbler sp."));
+    expect(wRow).toBe("new world warbler sp., ,4|NFC 4");
+  });
+
+  test("species with zero total count renders as space", () => {
+    // Labels 3 has no grhowl; Labels 0 has 1 grhowl
+    const files = ["Labels 3.txt"];
+    const allResults = files.flatMap((f) => processInput(readFixture(f), f));
+    const display = aggregateResults(allResults, files, false);
+    const ordered = orderSorted(display);
+    const rows = formatBirdCsvRowsAggregated(ordered);
+
+    // no grhowl in Labels 3 — should not appear at all
+    expect(rows.find((r) => r.startsWith("Great Horned Owl"))).toBeUndefined();
+  });
+
+  test("all six fixtures snapshot", () => {
+    const files = [
+      "Labels 0.txt",
+      "Labels 1.txt",
+      "Labels 2.txt",
+      "Labels 3.txt",
+      "Labels 4.txt",
+      "Labels 5.txt",
+    ];
+    const allResults = files.flatMap((f) => processInput(readFixture(f), f));
+    const display = aggregateResults(allResults, files, false);
+    const ordered = orderSorted(display);
+    const rows = formatBirdCsvRowsAggregated(ordered);
+    expect(rows).toMatchSnapshot();
   });
 });
 

@@ -14,3 +14,18 @@ exports[`formatBirdCsvRows > field-guide order - all six fixtures snapshot 1`] =
   "ovenbi, , , ,1|NFC 1, , , ",
 ]
 `;
+
+exports[`formatBirdCsvRowsAggregated > all six fixtures snapshot 1`] = `
+[
+  "Great Horned Owl, ,1|NFC 1",
+  "Swainson's Thrush, ,1|NFC 1",
+  "Chipping Sparrow, ,1|NFC 1",
+  "White-crowned Sparrow, ,1|NFC 1",
+  "White-throated Sparrow, ,9|NFC 9",
+  "Savannah Sparrow, ,4|NFC 4",
+  "new world sparrow sp., ,5|NFC 5",
+  "new world warbler sp., ,23|NFC 23",
+  "passerine sp., ,3|NFC 3",
+  "ovenbi, ,1|NFC 1",
+]
+`;

@@ -1,5 +1,5 @@
 import "invokers-polyfill";
-import { createSignal, For, Index } from "solid-js";
+import { createSignal, For, Index, Show } from "solid-js";
 import type { DisplayResult } from "../lib/aggregateResults";
 
 const STORAGE_KEY = "ebird-defaults";
@@ -31,6 +31,7 @@ function EBirdExport(props: {
 }) {
   let dialogRef!: HTMLDialogElement;
   const [tbody, setTbody] = createSignal<HTMLTableSectionElement | null>(null);
+  const [aggregated, setAggregated] = createSignal(false);
 
   const loadedDefaults = (): Record<string, string> => {
     const fallback = Object.fromEntries(
@@ -83,6 +84,14 @@ function EBirdExport(props: {
         <button type="button" commandfor={DIALOG_ID} command="show-modal">
           Edit defaults
         </button>
+        <label>
+          <input
+            type="checkbox"
+            checked={aggregated()}
+            onChange={(e) => setAggregated(e.currentTarget.checked)}
+          />
+          {" "}Aggregate to single checklist
+        </label>
       </div>
 
 
@@ -93,9 +102,16 @@ function EBirdExport(props: {
               <tr>
                 <th scope="row">{row().display ?? row().label}</th>
                 <td> </td>
-                <Index each={props.activeFiles}>
-                  {() => <td contentEditable>{defaults()[row().label] ?? row().default}</td>}
-                </Index>
+                <Show
+                  when={aggregated()}
+                  fallback={
+                    <Index each={props.activeFiles}>
+                      {() => <td contentEditable>{defaults()[row().label] ?? row().default}</td>}
+                    </Index>
+                  }
+                >
+                  <td contentEditable>{defaults()[row().label] ?? row().default}</td>
+                </Show>
               </tr>
             )}
           </Index>
@@ -106,19 +122,29 @@ function EBirdExport(props: {
                   {result.fullBird?.COMMONNAME ?? result.name}
                 </th>
                 <td> </td>
-                <Index each={props.activeFiles}>
-                  {(file) => {
-                    const fc = () => result.fileCounts?.[file()];
-                    const count = () => fc()?.count ?? 0;
-                    const additional = () => fc()?.additional ?? 0;
-                    if (count() === 0) return <td> </td>;
-                    return (
-                      <td contentEditable>
-                        {count()}|NFC {count() + additional()}
-                      </td>
-                    );
-                  } }
-                </Index>
+                <Show
+                  when={aggregated()}
+                  fallback={
+                    <Index each={props.activeFiles}>
+                      {(file: () => string) => {
+                        const fc = () => result.fileCounts?.[file()];
+                        const count = () => fc()?.count ?? 0;
+                        const additional = () => fc()?.additional ?? 0;
+                        if (count() === 0) return <td> </td>;
+                        return (
+                          <td contentEditable>
+                            {count()}|NFC {count() + additional()}
+                          </td>
+                        );
+                      }}
+                    </Index>
+                  }
+                >
+                  {result.count
+                    ? <td contentEditable>{result.count}|NFC {result.totalCount}</td>
+                    : <td> </td>
+                  }
+                </Show>
               </tr>
             )}
           </For>
