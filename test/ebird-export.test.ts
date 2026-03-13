@@ -224,3 +224,91 @@ describe("formatBirdCsvRows", () => {
     expect(rows).toMatchSnapshot();
   });
 });
+
+// ─── formatBirdCsvRowsAggregated edge cases ────────────────────────────────
+
+describe("formatBirdCsvRowsAggregated edge cases", () => {
+  test("uses result.name when fullBird is absent", () => {
+    const rows = formatBirdCsvRowsAggregated([{ name: "unknownsp" }]);
+    expect(rows[0]).toContain("unknownsp");
+  });
+
+  test("count and totalCount default to 0 when undefined", () => {
+    const rows = formatBirdCsvRowsAggregated([{ name: "x", count: undefined, totalCount: undefined }]);
+    // count=0 renders as a space, not a count|NFC cell
+    expect(rows[0].endsWith(" ")).toBe(true);
+  });
+});
+
+// ─── formatBirdCsvRows edge cases ──────────────────────────────────────────
+
+describe("formatBirdCsvRows edge cases", () => {
+  test("fileCounts absent for result renders as space", () => {
+    const rows = formatBirdCsvRows([{ name: "x" }], ["f.txt"]);
+    // fc is undefined → count=0 → renders as space
+    expect(rows[0]).toContain(" ");
+  });
+});
+
+// ─── orderSorted edge cases ─────────────────────────────────────────────────
+
+describe("orderSorted edge cases", () => {
+  test("result with no fullBird uses 99999 sort fallback", () => {
+    const results = [
+      { name: "no-bird" },
+      { name: "with-bird", fullBird: { SPEC: "X", COMMONNAME: "X Bird", SPEC6: "XX", SCINAME: "X x", SORT_INDEX: 100 } },
+    ];
+    const sorted = orderSorted(results);
+    // "with-bird" (SORT_INDEX=100) sorts before "no-bird" (fallback 99999)
+    expect(sorted[0].name).toBe("with-bird");
+  });
+
+  test("fullBird present but SORT_INDEX undefined uses 99999 fallback", () => {
+    const results = [
+      { name: "a", fullBird: { SPEC: "A", COMMONNAME: "A Bird", SPEC6: "AA", SCINAME: "A a" } },
+      { name: "b", fullBird: { SPEC: "B", COMMONNAME: "B Bird", SPEC6: "BB", SCINAME: "B b", SORT_INDEX: 1 } },
+    ];
+    const sorted = orderSorted(results);
+    expect(sorted[0].name).toBe("b"); // SORT_INDEX=1 sorts first
+  });
+});
+
+// ─── aggregateResults with combine=true ────────────────────────────────────
+
+describe("aggregateResults with NFC parent grouping", () => {
+  // The groups map is keyed by NFC group codes (e.g. "SFHS", "HSSP"),
+  // not species codes. combine=true groups detections labeled with NFC
+  // group codes under their shared parent family.
+  test("combines two NFC group codes with the same parent into one row", () => {
+    // "SFHS" and "HSSP" both have parent: "Passerellidae"
+    const results = [
+      { start: "0", end: "0", name: "SFHS", count: 2, additional: 0, audio: false, fileName: "f.txt" },
+      { start: "1", end: "1", name: "HSSP", count: 3, additional: 0, audio: false, fileName: "f.txt" },
+    ];
+    const display = aggregateResults(results, ["f.txt"], true);
+    expect(display.length).toBeLessThan(2);
+    const grouped = display.find((d) => d.name === "Passerellidae");
+    expect(grouped).toBeDefined();
+    expect(grouped?.count).toBe(5);
+  });
+
+  test("NFC group code without a parent keeps its own name", () => {
+    // "BUNT" has no parent field
+    const results = [
+      { start: "0", end: "0", name: "BUNT", count: 1, additional: 0, audio: false, fileName: "f.txt" },
+    ];
+    const display = aggregateResults(results, ["f.txt"], true);
+    expect(display.find((d) => d.name === "BUNT")).toBeDefined();
+  });
+
+  test("combine=true sums counts and additional across grouped NFC codes", () => {
+    const results = [
+      { start: "0", end: "0", name: "SFHS", count: 4, additional: 1, audio: false, fileName: "f.txt" },
+      { start: "1", end: "1", name: "HSSP", count: 2, additional: 0, audio: false, fileName: "f.txt" },
+    ];
+    const display = aggregateResults(results, ["f.txt"], true);
+    const grouped = display.find((d) => d.name === "Passerellidae");
+    expect(grouped?.count).toBe(6);
+    expect(grouped?.totalCount).toBe(7); // (4+1) + (2+0)
+  });
+});

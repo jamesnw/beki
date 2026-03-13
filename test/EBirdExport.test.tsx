@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { afterEach, describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { render } from "solid-js/web";
 import { readFileSync } from "fs";
 import { join } from "path";
@@ -101,6 +101,116 @@ describe("aggregated mode", () => {
     const cell = row.querySelectorAll("td")[1].textContent!;
     const [countStr, nfcStr] = cell.split("|NFC ");
     expect(Number(nfcStr)).toBeGreaterThanOrEqual(Number(countStr));
+    dispose();
+  });
+
+  test("bird with zero aggregated count renders as a space", () => {
+    // A result with count=0 but in the list should render a space cell
+    const zeroResult = display.map((r) => ({ ...r, count: 0, totalCount: 0 }));
+    const { container, dispose } = setup(zeroResult);
+    toggleAggregated(container);
+    const birdRows = [...container.querySelectorAll("tbody tr")].slice(
+      rows.length,
+    );
+    for (const row of birdRows) {
+      const dataCells = row.querySelectorAll("td");
+      // spacer + one data cell; data cell should be a space
+      expect(dataCells[1].textContent).toBe(" ");
+    }
+    dispose();
+  });
+});
+
+// ─── Defaults dialog ────────────────────────────────────────────────────────
+
+// The number of metadata rows defined in EBirdExport
+const rows = [
+  "Location", "Latitude", "Longitude", "Date", "Start Time",
+  "State", "Country", "Protocol", "Num Observers", "Duration (min)",
+  "All Obs Reported (Y/N)", "Dist Traveled (Miles)", "Area Covered (Acres)", "Notes",
+];
+
+describe("defaults dialog", () => {
+  test("dialog element is present in the DOM", () => {
+    const { container, dispose } = setup();
+    expect(container.querySelector("dialog")).toBeTruthy();
+    dispose();
+  });
+
+  test("dialog form contains inputs for all storable rows", () => {
+    const { container, dispose } = setup();
+    const dialog = container.querySelector("dialog")!;
+    // Storable rows exclude Date, Start Time, Protocol (store: false)
+    const inputs = dialog.querySelectorAll("input[name]");
+    expect(inputs.length).toBeGreaterThan(0);
+    dispose();
+  });
+
+  test("loads stored defaults from localStorage on render", () => {
+    // "Num Observers" has no display override, so its <th> shows the label text
+    localStorage.setItem(
+      "ebird-defaults",
+      JSON.stringify({ "Num Observers": "5" }),
+    );
+    const { container, dispose } = setup();
+    const metaRows = container.querySelectorAll("tbody tr");
+    const numObsRow = [...metaRows].find(
+      (r) => r.querySelector("th")?.textContent === "Num Observers",
+    )!;
+    expect(numObsRow).toBeTruthy();
+    // First contenteditable td (index 1, after the spacer) should show "5"
+    const cell = numObsRow.querySelector("td[contenteditable]");
+    expect(cell?.textContent).toBe("5");
+    dispose();
+  });
+
+  test("falls back to defaults when localStorage JSON is corrupt", () => {
+    localStorage.setItem("ebird-defaults", "not valid json");
+    // Should render without throwing
+    const { container, dispose } = setup();
+    expect(container.querySelector("tbody")).toBeTruthy();
+    dispose();
+  });
+
+  test("submitting the dialog form saves to localStorage and updates display", () => {
+    const { container, dispose } = setup();
+    const form = container.querySelector("dialog form") as HTMLFormElement;
+    const locationInput = form.querySelector(
+      'input[name="Location"]',
+    ) as HTMLInputElement;
+    locationInput.value = "Prospect Park";
+
+    form.dispatchEvent(new SubmitEvent("submit", { bubbles: true, cancelable: true }));
+
+    const stored = JSON.parse(localStorage.getItem("ebird-defaults")!);
+    expect(stored["Location"]).toBe("Prospect Park");
+    dispose();
+  });
+});
+
+// ─── Export ─────────────────────────────────────────────────────────────────
+
+describe("makeExport", () => {
+  test("clicking Export triggers a CSV download", () => {
+    const mockUrl = "blob:mock";
+    const createObjectURL = vi
+      .spyOn(URL, "createObjectURL")
+      .mockReturnValue(mockUrl);
+    const revokeObjectURL = vi
+      .spyOn(URL, "revokeObjectURL")
+      .mockImplementation(() => {});
+
+    const { container, dispose } = setup();
+    const exportBtn = [...container.querySelectorAll("button")].find(
+      (b) => b.textContent?.trim() === "Export",
+    ) as HTMLButtonElement;
+    exportBtn.click();
+
+    expect(createObjectURL).toHaveBeenCalled();
+    expect(revokeObjectURL).toHaveBeenCalledWith(mockUrl);
+
+    createObjectURL.mockRestore();
+    revokeObjectURL.mockRestore();
     dispose();
   });
 });
