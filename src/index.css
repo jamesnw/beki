@@ -105,9 +105,16 @@ body {
 }
 
 .ebird-export {
-  th, td{
+  th,
+  td {
     &:empty {
       background: var(--color-warning-fill-accent);
     }
+  }
+}
+
+[data-birdlink] {
+  [popover] {
+    position-area: inline-end;
   }
 }

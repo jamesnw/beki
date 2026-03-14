@@ -82,8 +82,8 @@ describe("Options", () => {
 
   test("codeType options cover all four modes", () => {
     const { container, dispose } = setup();
-    const options = [...container.querySelectorAll("option")].map(
-      (o) => o.getAttribute("value"),
+    const options = [...container.querySelectorAll("option")].map((o) =>
+      o.getAttribute("value"),
     );
     expect(options).toContain("4");
     expect(options).toContain("6");

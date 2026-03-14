@@ -4,7 +4,12 @@ import type { DisplayResult } from "../lib/aggregateResults";
 
 const STORAGE_KEY = "ebird-defaults";
 
-const rows: { label: string; display?: string; default?: string; store?: false }[] = [
+const rows: {
+  label: string;
+  display?: string;
+  default?: string;
+  store?: false;
+}[] = [
   { label: "Location", display: "" },
   { label: "Latitude" },
   { label: "Longitude" },
@@ -45,13 +50,17 @@ function EBirdExport(props: {
     }
   };
 
-  const [defaults, setDefaults] = createSignal<Record<string, string>>(loadedDefaults());
+  const [defaults, setDefaults] =
+    createSignal<Record<string, string>>(loadedDefaults());
 
   const submitDefaults = (e: SubmitEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
     const newDefaults = Object.fromEntries(
-      storableRows.map((row) => [row.label, (formData.get(row.label) as string) ?? ""]),
+      storableRows.map((row) => [
+        row.label,
+        (formData.get(row.label) as string) ?? "",
+      ]),
     );
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newDefaults));
     setDefaults(newDefaults);
@@ -77,80 +86,90 @@ function EBirdExport(props: {
   };
 
   return (
-    <><section class="ebird-export stack">
-      <h2>eBird Export</h2>
-      <div class="cluster">
-        <button onClick={makeExport}>Export</button>
-        <button type="button" commandfor={DIALOG_ID} command="show-modal">
-          Edit defaults
-        </button>
-        <label>
-          <input
-            type="checkbox"
-            checked={aggregated()}
-            onChange={(e) => setAggregated(e.currentTarget.checked)}
-          />
-          {" "}Aggregate to single checklist
-        </label>
-      </div>
+    <>
+      <section class="ebird-export stack">
+        <h2>eBird Export</h2>
+        <div class="cluster">
+          <button onClick={makeExport}>Export</button>
+          <button type="button" commandfor={DIALOG_ID} command="show-modal">
+            Edit defaults
+          </button>
+          <label>
+            <input
+              type="checkbox"
+              checked={aggregated()}
+              onChange={(e) => setAggregated(e.currentTarget.checked)}
+            />{" "}
+            Aggregate to single checklist
+          </label>
+        </div>
 
-
-      <table class="table table-striped">
-        <tbody ref={setTbody}>
-          <Index each={rows}>
-            {(row) => (
-              <tr>
-                <th scope="row">{row().display ?? row().label}</th>
-                <td> </td>
-                <Show
-                  when={aggregated()}
-                  fallback={
-                    <Index each={props.activeFiles}>
-                      {() => <td contentEditable>{defaults()[row().label] ?? row().default}</td>}
-                    </Index>
-                  }
-                >
-                  <td contentEditable>{defaults()[row().label] ?? row().default}</td>
-                </Show>
-              </tr>
-            )}
-          </Index>
-          <For each={props.results}>
-            {(result) => (
-              <tr>
-                <th scope="row">
-                  {result.fullBird?.COMMONNAME ?? result.name}
-                </th>
-                <td> </td>
-                <Show
-                  when={aggregated()}
-                  fallback={
-                    <Index each={props.activeFiles}>
-                      {(file: () => string) => {
-                        const fc = () => result.fileCounts?.[file()];
-                        const count = () => fc()?.count ?? 0;
-                        const additional = () => fc()?.additional ?? 0;
-                        if (count() === 0) return <td> </td>;
-                        return (
+        <table class="table table-striped">
+          <tbody ref={setTbody}>
+            <Index each={rows}>
+              {(row) => (
+                <tr>
+                  <th scope="row">{row().display ?? row().label}</th>
+                  <td> </td>
+                  <Show
+                    when={aggregated()}
+                    fallback={
+                      <Index each={props.activeFiles}>
+                        {() => (
                           <td contentEditable>
-                            {count()}|NFC {count() + additional()}
+                            {defaults()[row().label] ?? row().default}
                           </td>
-                        );
-                      }}
-                    </Index>
-                  }
-                >
-                  {result.count
-                    ? <td contentEditable>{result.count}|NFC {result.totalCount}</td>
-                    : <td> </td>
-                  }
-                </Show>
-              </tr>
-            )}
-          </For>
-        </tbody>
-      </table>
-    </section><dialog id={DIALOG_ID} ref={dialogRef}>
+                        )}
+                      </Index>
+                    }
+                  >
+                    <td contentEditable>
+                      {defaults()[row().label] ?? row().default}
+                    </td>
+                  </Show>
+                </tr>
+              )}
+            </Index>
+            <For each={props.results}>
+              {(result) => (
+                <tr>
+                  <th scope="row">
+                    {result.fullBird?.COMMONNAME ?? result.name}
+                  </th>
+                  <td> </td>
+                  <Show
+                    when={aggregated()}
+                    fallback={
+                      <Index each={props.activeFiles}>
+                        {(file: () => string) => {
+                          const fc = () => result.fileCounts?.[file()];
+                          const count = () => fc()?.count ?? 0;
+                          const additional = () => fc()?.additional ?? 0;
+                          if (count() === 0) return <td> </td>;
+                          return (
+                            <td contentEditable>
+                              {count()}|NFC {count() + additional()}
+                            </td>
+                          );
+                        }}
+                      </Index>
+                    }
+                  >
+                    {result.count ? (
+                      <td contentEditable>
+                        {result.count}|NFC {result.totalCount}
+                      </td>
+                    ) : (
+                      <td> </td>
+                    )}
+                  </Show>
+                </tr>
+              )}
+            </For>
+          </tbody>
+        </table>
+      </section>
+      <dialog id={DIALOG_ID} ref={dialogRef}>
         <form onSubmit={submitDefaults} class="stack">
           <h3>Edit defaults</h3>
           <For each={storableRows}>
@@ -170,7 +189,8 @@ function EBirdExport(props: {
             </button>
           </div>
         </form>
-      </dialog></>
+      </dialog>
+    </>
   );
 }
 

@@ -27,9 +27,7 @@ function BirdList() {
         <div class="callout warning">No matching birds found.</div>
       )}
       <ul class="list-unstyled">
-        <For each={filteredBirds()}>
-          {(bird) => <BirdListItem {...bird} />}
-        </For>
+        <For each={filteredBirds()}>{(bird) => <BirdListItem {...bird} />}</For>
       </ul>
     </>
   );

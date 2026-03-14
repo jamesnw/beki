@@ -53,7 +53,8 @@ export function aggregateResults(
         file: item.fileName ?? "",
       })),
       fullBird:
-        ebirdToBirdMap.get(name) || shortBirdCodes.find((sb) => sb.SPEC === name),
+        ebirdToBirdMap.get(name) ||
+        shortBirdCodes.find((sb) => sb.SPEC === name),
       nfcGroup: groups.get(name),
       fileCounts: Object.fromEntries(
         files.map((f) => [
@@ -82,7 +83,9 @@ export function orderSorted(results: DisplayResult[]): DisplayResult[] {
 }
 
 /** Format bird rows as a single aggregated CSV column. */
-export function formatBirdCsvRowsAggregated(results: DisplayResult[]): string[] {
+export function formatBirdCsvRowsAggregated(
+  results: DisplayResult[],
+): string[] {
   return results.map((result) => {
     const name = result.fullBird?.COMMONNAME ?? result.name;
     const count = result.count ?? 0;

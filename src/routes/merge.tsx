@@ -2,7 +2,11 @@ import { createSignal, onCleanup, For, Show } from "solid-js";
 import FileProcessorWorker from "../workers/fileProcessor.worker.ts?worker";
 import type { ProcessFileResponse } from "../workers/fileProcessor.worker";
 import type { Result } from "../lib/processFile";
-import { aggregateResults, orderSorted, shortBirdCodes } from "../lib/aggregateResults";
+import {
+  aggregateResults,
+  orderSorted,
+  shortBirdCodes,
+} from "../lib/aggregateResults";
 import type { DisplayResult } from "../lib/aggregateResults";
 import Sparkline from "../components/Sparkline";
 import EBirdExport from "../components/EBirdExport";
@@ -26,7 +30,9 @@ function Merge() {
   const [fileTexts, setFileTexts] = createSignal<Record<string, string>>({});
   const [editingName, setEditingName] = createSignal<string | null>(null);
   const [editValue, setEditValue] = createSignal("");
-  const [activeTab, setActiveTab] = createSignal<"results" | "ebird">("results");
+  const [activeTab, setActiveTab] = createSignal<"results" | "ebird">(
+    "results",
+  );
 
   // Initialize the worker
   const worker = new FileProcessorWorker();
@@ -326,15 +332,24 @@ function Merge() {
                             value={editValue()}
                             onInput={(e) => setEditValue(e.currentTarget.value)}
                             onKeyDown={(e) => {
-                              if (e.key === "Enter") renameSpecies(r.name, editValue());
+                              if (e.key === "Enter")
+                                renameSpecies(r.name, editValue());
                               if (e.key === "Escape") setEditingName(null);
                             }}
                             autofocus
                           />
-                          <button class="size-xs primary" onClick={() => renameSpecies(r.name, editValue())}>
+                          <button
+                            class="size-xs primary"
+                            onClick={() => renameSpecies(r.name, editValue())}
+                          >
                             Save
                           </button>
-                          <button class="size-xs plain" onClick={() => setEditingName(null)}>Cancel</button>
+                          <button
+                            class="size-xs plain"
+                            onClick={() => setEditingName(null)}
+                          >
+                            Cancel
+                          </button>
                         </Show>
                       </td>
                       <td>{r.count}</td>
@@ -347,7 +362,10 @@ function Merge() {
                           ) ? (
                             <span>{r.fullBird.COMMONNAME}</span>
                           ) : (
-                            <a target="_blank" href={`/bird/${r.fullBird.SPEC}`}>
+                            <a
+                              target="_blank"
+                              href={`/bird/${r.fullBird.SPEC}`}
+                            >
                               {r.fullBird.COMMONNAME}
                             </a>
                           ))}
@@ -365,72 +383,74 @@ function Merge() {
           )}
         </section>
         <hr />
-      <section class="callout">
-        <h2>Accepted formats</h2>
-        <p>
-          This tool takes one or more files in the Audacity Label format, and
-          aggregates the calls. It can either be the output format from
-          Nighthawk, or a label track from Audacity with the labels in a
-          specific format.
-        </p>
-        <p>
-          When checking NFCs, I import the Nighthawk labels into Audacity, and
-          then add an additional label track. I have "Typing Creates New Labels"
-          enabled, and add a new label for each verified call. I then export the
-          label track (you may need to delete the Nighthawk track first) and
-          upload it here.
-        </p>
-        <h3>Custom label format</h3>
-        <p>
-          The species of the call must come first. It doesn't matter if you use
-          4 or 6 letter (or other) shortcodes for a species, it just has to be
-          consistent across labels. I use <code>w</code> for warbler sp.'s, and{" "}
-          <code>th</code> for thrush sp.'s. Supported shortcodes include:
-        </p>
+        <section class="callout">
+          <h2>Accepted formats</h2>
+          <p>
+            This tool takes one or more files in the Audacity Label format, and
+            aggregates the calls. It can either be the output format from
+            Nighthawk, or a label track from Audacity with the labels in a
+            specific format.
+          </p>
+          <p>
+            When checking NFCs, I import the Nighthawk labels into Audacity, and
+            then add an additional label track. I have "Typing Creates New
+            Labels" enabled, and add a new label for each verified call. I then
+            export the label track (you may need to delete the Nighthawk track
+            first) and upload it here.
+          </p>
+          <h3>Custom label format</h3>
+          <p>
+            The species of the call must come first. It doesn't matter if you
+            use 4 or 6 letter (or other) shortcodes for a species, it just has
+            to be consistent across labels. I use <code>w</code> for warbler
+            sp.'s, and <code>th</code> for thrush sp.'s. Supported shortcodes
+            include:
+          </p>
 
-        <ul>
-          <For each={shortBirdCodes}>
-            {(sb) => (
-              <li>
-                <code>{sb.SPEC}</code> - {sb.COMMONNAME}
-              </li>
-            )}
-          </For>
-        </ul>
+          <ul>
+            <For each={shortBirdCodes}>
+              {(sb) => (
+                <li>
+                  <code>{sb.SPEC}</code> - {sb.COMMONNAME}
+                </li>
+              )}
+            </For>
+          </ul>
 
-        <p>
-          After the species, add a space, and then the estimated number of
-          birds. If there are more NFCs then birds, add <code>+</code> and then
-          the number of additional calls.
-        </p>
-        <p>
-          Finally, if you have audio of the call, add the word{" "}
-          <code>audio</code> at the end.
-        </p>
-        <p>Example labels:</p>
-        <ul>
-          <li>
-            <code>amered</code> - single American Redstart
-          </li>
-          <li>
-            <code>swathr 2 +1 audio</code> - two Swainson's Thrushes, plus one
-            additional call, with audio
-          </li>
-          <li>
-            <code>w 3 +2</code> - three warblers, plus two additional calls, no
-            audio
-          </li>
-        </ul>
-        <p>
-          If you upload a file with the same name as a file already it
-          processed, it will replace the previous file. If it has a different
-          file name, it will be combined with the existing counts.
-        </p>
-        <p>
-          Note: All processing is done on your computer, and is never uploaded.
-          I have enough of my own NFCs to comb through... I don't want yours.
-        </p>
-      </section>
+          <p>
+            After the species, add a space, and then the estimated number of
+            birds. If there are more NFCs then birds, add <code>+</code> and
+            then the number of additional calls.
+          </p>
+          <p>
+            Finally, if you have audio of the call, add the word{" "}
+            <code>audio</code> at the end.
+          </p>
+          <p>Example labels:</p>
+          <ul>
+            <li>
+              <code>amered</code> - single American Redstart
+            </li>
+            <li>
+              <code>swathr 2 +1 audio</code> - two Swainson's Thrushes, plus one
+              additional call, with audio
+            </li>
+            <li>
+              <code>w 3 +2</code> - three warblers, plus two additional calls,
+              no audio
+            </li>
+          </ul>
+          <p>
+            If you upload a file with the same name as a file already it
+            processed, it will replace the previous file. If it has a different
+            file name, it will be combined with the existing counts.
+          </p>
+          <p>
+            Note: All processing is done on your computer, and is never
+            uploaded. I have enough of my own NFCs to comb through... I don't
+            want yours.
+          </p>
+        </section>
       </Show>
 
       <Show when={activeTab() === "ebird"}>
@@ -438,7 +458,10 @@ function Merge() {
           when={orderSortedDisplay().length > 0}
           fallback={<p>No results yet.</p>}
         >
-          <EBirdExport results={orderSortedDisplay()} activeFiles={activeFilesList()} />
+          <EBirdExport
+            results={orderSortedDisplay()}
+            activeFiles={activeFilesList()}
+          />
         </Show>
       </Show>
     </div>

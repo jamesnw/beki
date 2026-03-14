@@ -24,14 +24,30 @@ export const processLine = (line: string): Result | undefined => {
     // eslint-disable-next-line
     let [_, name, strength] = res;
     strength = parseFloat(strength).toFixed(2);
-    return { start, end, name, strength, count: 1, additional: 0, audio: false };
+    return {
+      start,
+      end,
+      name,
+      strength,
+      count: 1,
+      additional: 0,
+      audio: false,
+    };
   }
   // My format
   const labelParts = label.split(" ");
-  const output: Result = { start, end, name: "", count: 1, additional: 0, audio: false };
+  const output: Result = {
+    start,
+    end,
+    name: "",
+    count: 1,
+    additional: 0,
+    audio: false,
+  };
   for (let i = 0; i < labelParts.length; i++) {
     if (i === 0) output.name = labelParts[i];
-    else if (labelParts[i].match(/^\d+$/)) output.count = parseInt(labelParts[i]);
+    else if (labelParts[i].match(/^\d+$/))
+      output.count = parseInt(labelParts[i]);
     else if (labelParts[i].match(/^\+\d+$/))
       output.additional = parseInt(labelParts[i].substring(1));
     else if (labelParts[i] === "audio") output.audio = true;

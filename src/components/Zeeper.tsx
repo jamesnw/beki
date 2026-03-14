@@ -16,8 +16,10 @@ export default function Zeeper(props: {
           props.measured().frequency_low === 5,
         details["Frequency High"] >= props.measured().frequency_high ||
           props.measured().frequency_high === 10,
-        details["Low Humps"] <= props.measured().humps || props.measured().humps === 0,
-        details["High Humps"] >= props.measured().humps || props.measured().humps === 0,
+        details["Low Humps"] <= props.measured().humps ||
+          props.measured().humps === 0,
+        details["High Humps"] >= props.measured().humps ||
+          props.measured().humps === 0,
         // details["Hump Depth High"] >= props.measured().frequency_high - props.measured().frequency_low,
 
         // details["Hump spacing"] >= settings().hump_spacing &&
@@ -124,7 +126,16 @@ export default function Zeeper(props: {
         class="zeeper item-three-fourths"
       >
         <g id="hzAxis">
-          <For each={[[0, 10], [100, 9], [200, 8], [300, 7], [400, 6], [500, 5]]}>
+          <For
+            each={[
+              [0, 10],
+              [100, 9],
+              [200, 8],
+              [300, 7],
+              [400, 6],
+              [500, 5],
+            ]}
+          >
             {([y, k]) => (
               <g>
                 <line x1="0" y1={y} x2={canvasWidth} y2={y} stroke-width="2" />
@@ -142,7 +153,9 @@ export default function Zeeper(props: {
             y={(10 - props.measured().frequency_high) * 100}
             width={props.measured().duration * 10}
             height={
-              (props.measured().frequency_high - props.measured().frequency_low) * 100
+              (props.measured().frequency_high -
+                props.measured().frequency_low) *
+              100
             }
             fill-opacity="0.3"
             stroke-width="3"

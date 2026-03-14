@@ -27,9 +27,7 @@ describe("processInput", () => {
   test("Labels 1 - count in label", () => {
     const results = processInput(readFixture("Labels 1.txt"), "Labels 1.txt");
     expect(results).toHaveLength(13);
-    const counted = results.find(
-      (r) => r.name === "whtspa" && r.count === 2,
-    );
+    const counted = results.find((r) => r.name === "whtspa" && r.count === 2);
     expect(counted).toBeDefined();
   });
 
@@ -111,9 +109,7 @@ describe("aggregateResults - multiple files", () => {
     "Labels 5.txt",
   ];
 
-  const allResults = files.flatMap((f) =>
-    processInput(readFixture(f), f),
-  );
+  const allResults = files.flatMap((f) => processInput(readFixture(f), f));
 
   test("fileCounts are isolated per file", () => {
     const display = aggregateResults(allResults, files, false);
@@ -234,7 +230,9 @@ describe("formatBirdCsvRowsAggregated edge cases", () => {
   });
 
   test("count and totalCount default to 0 when undefined", () => {
-    const rows = formatBirdCsvRowsAggregated([{ name: "x", count: undefined, totalCount: undefined }]);
+    const rows = formatBirdCsvRowsAggregated([
+      { name: "x", count: undefined, totalCount: undefined },
+    ]);
     // count=0 renders as a space, not a count|NFC cell
     expect(rows[0].endsWith(" ")).toBe(true);
   });
@@ -256,7 +254,16 @@ describe("orderSorted edge cases", () => {
   test("result with no fullBird uses 99999 sort fallback", () => {
     const results = [
       { name: "no-bird" },
-      { name: "with-bird", fullBird: { SPEC: "X", COMMONNAME: "X Bird", SPEC6: "XX", SCINAME: "X x", SORT_INDEX: 100 } },
+      {
+        name: "with-bird",
+        fullBird: {
+          SPEC: "X",
+          COMMONNAME: "X Bird",
+          SPEC6: "XX",
+          SCINAME: "X x",
+          SORT_INDEX: 100,
+        },
+      },
     ];
     const sorted = orderSorted(results);
     // "with-bird" (SORT_INDEX=100) sorts before "no-bird" (fallback 99999)
@@ -265,8 +272,25 @@ describe("orderSorted edge cases", () => {
 
   test("fullBird present but SORT_INDEX undefined uses 99999 fallback", () => {
     const results = [
-      { name: "a", fullBird: { SPEC: "A", COMMONNAME: "A Bird", SPEC6: "AA", SCINAME: "A a" } },
-      { name: "b", fullBird: { SPEC: "B", COMMONNAME: "B Bird", SPEC6: "BB", SCINAME: "B b", SORT_INDEX: 1 } },
+      {
+        name: "a",
+        fullBird: {
+          SPEC: "A",
+          COMMONNAME: "A Bird",
+          SPEC6: "AA",
+          SCINAME: "A a",
+        },
+      },
+      {
+        name: "b",
+        fullBird: {
+          SPEC: "B",
+          COMMONNAME: "B Bird",
+          SPEC6: "BB",
+          SCINAME: "B b",
+          SORT_INDEX: 1,
+        },
+      },
     ];
     const sorted = orderSorted(results);
     expect(sorted[0].name).toBe("b"); // SORT_INDEX=1 sorts first
@@ -282,8 +306,24 @@ describe("aggregateResults with NFC parent grouping", () => {
   test("combines two NFC group codes with the same parent into one row", () => {
     // "SFHS" and "HSSP" both have parent: "Passerellidae"
     const results = [
-      { start: "0", end: "0", name: "SFHS", count: 2, additional: 0, audio: false, fileName: "f.txt" },
-      { start: "1", end: "1", name: "HSSP", count: 3, additional: 0, audio: false, fileName: "f.txt" },
+      {
+        start: "0",
+        end: "0",
+        name: "SFHS",
+        count: 2,
+        additional: 0,
+        audio: false,
+        fileName: "f.txt",
+      },
+      {
+        start: "1",
+        end: "1",
+        name: "HSSP",
+        count: 3,
+        additional: 0,
+        audio: false,
+        fileName: "f.txt",
+      },
     ];
     const display = aggregateResults(results, ["f.txt"], true);
     expect(display.length).toBeLessThan(2);
@@ -295,7 +335,15 @@ describe("aggregateResults with NFC parent grouping", () => {
   test("NFC group code without a parent keeps its own name", () => {
     // "BUNT" has no parent field
     const results = [
-      { start: "0", end: "0", name: "BUNT", count: 1, additional: 0, audio: false, fileName: "f.txt" },
+      {
+        start: "0",
+        end: "0",
+        name: "BUNT",
+        count: 1,
+        additional: 0,
+        audio: false,
+        fileName: "f.txt",
+      },
     ];
     const display = aggregateResults(results, ["f.txt"], true);
     expect(display.find((d) => d.name === "BUNT")).toBeDefined();
@@ -303,8 +351,24 @@ describe("aggregateResults with NFC parent grouping", () => {
 
   test("combine=true sums counts and additional across grouped NFC codes", () => {
     const results = [
-      { start: "0", end: "0", name: "SFHS", count: 4, additional: 1, audio: false, fileName: "f.txt" },
-      { start: "1", end: "1", name: "HSSP", count: 2, additional: 0, audio: false, fileName: "f.txt" },
+      {
+        start: "0",
+        end: "0",
+        name: "SFHS",
+        count: 4,
+        additional: 1,
+        audio: false,
+        fileName: "f.txt",
+      },
+      {
+        start: "1",
+        end: "1",
+        name: "HSSP",
+        count: 2,
+        additional: 0,
+        audio: false,
+        fileName: "f.txt",
+      },
     ];
     const display = aggregateResults(results, ["f.txt"], true);
     const grouped = display.find((d) => d.name === "Passerellidae");

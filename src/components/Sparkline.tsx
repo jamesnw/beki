@@ -10,7 +10,8 @@ export default function Sparkline(props: {
     Object.values(props.data)
       .map((count, index, arr) => {
         const x = (index / (arr.length - 1)) * SVG_WIDTH;
-        const y = SVG_HEIGHT - (count / (props.maxBucketCount || 1)) * SVG_HEIGHT;
+        const y =
+          SVG_HEIGHT - (count / (props.maxBucketCount || 1)) * SVG_HEIGHT;
         return `${x},${y}`;
       })
       .join(" "),

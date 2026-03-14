@@ -1,5 +1,5 @@
 import { For } from "solid-js";
-import { nfcWithBirds } from "../codes";
+import { nfcWithBirds, type BirdCode } from "../codes";
 import nfcGroups from "../data/nfc";
 
 declare module "solid-js" {
@@ -16,7 +16,11 @@ function NfcGroups() {
   return (
     <div
       class="toc-watch"
-      style={{ "--scopes": Object.keys(nfcWithBirds).map((k) => `--${k}`).join(",") }}
+      style={{
+        "--scopes": Object.keys(nfcWithBirds)
+          .map((k) => `--${k}`)
+          .join(","),
+      }}
     >
       <h1>NFC Groups</h1>
       <div class="callout secondary">
@@ -29,7 +33,11 @@ function NfcGroups() {
       </div>
       <div class="sidecar-end">
         <kelp-heading-anchors>
-          <For each={Object.entries(nfcWithBirds).sort(([a], [b]) => a.localeCompare(b))}>
+          <For
+            each={Object.entries(nfcWithBirds).sort(([a], [b]) =>
+              a.localeCompare(b),
+            )}
+          >
             {([nfcGroup, birds]) => (
               <section style={{ "--is": `--${nfcGroup}` }}>
                 <h2 id={nfcGroup}>{nfcGroup}</h2>
@@ -47,12 +55,7 @@ function NfcGroups() {
                 </p>
                 <ul>
                   <For each={birds}>
-                    {(bird) => (
-                      <li>
-                        <a href={`/bird/${bird.SPEC}`}>{bird.COMMONNAME}</a> (
-                        {bird.SPEC})
-                      </li>
-                    )}
+                    {(bird) => <NFCBirdListItem {...bird} />}
                   </For>
                 </ul>
               </section>
@@ -63,7 +66,11 @@ function NfcGroups() {
           <nav id="toc" class="callout vivid primary">
             <h2>Groups</h2>
             <ul class="list-unstyled">
-              <For each={Object.keys(nfcWithBirds).sort((a, b) => a.localeCompare(b))}>
+              <For
+                each={Object.keys(nfcWithBirds).sort((a, b) =>
+                  a.localeCompare(b),
+                )}
+              >
                 {(nfcGroup) => (
                   <li style={{ "--for": `--${nfcGroup}` }}>
                     <a class="toc-link" href={`#${nfcGroup}`}>
@@ -81,3 +88,41 @@ function NfcGroups() {
 }
 
 export default NfcGroups;
+
+function NFCBirdListItem(bird: BirdCode) {
+  return (
+    <li data-birdlink>
+      <a href={`/bird/${bird.SPEC}`} interestfor={bird.SPEC}>
+        {bird.COMMONNAME}
+      </a>{" "}
+      ({bird.SPEC})
+      <div popover="hint" id={bird.SPEC} class="callout vivid">
+        <div>
+          {bird.EBIRD && (
+            <div>
+              <a
+                href={`https://ebird.org/species/${bird.EBIRD}`}
+                target="_blank"
+              >
+                eBird
+              </a>{" "}
+              <a
+                href={`https://media.ebird.org/catalog?birdOnly=true&taxonCode=${bird.EBIRD}&mediaType=audio&tag=flight_call`}
+                target="_blank"
+                aria-label="Flight calls"
+                class="size-3xl"
+              >
+                ♪
+              </a>
+            </div>
+          )}
+          {bird.OLDBIRD && (
+            <a href={bird.OLDBIRD} target="_blank">
+              OldBird reference
+            </a>
+          )}
+        </div>
+      </div>
+    </li>
+  );
+}

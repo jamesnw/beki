@@ -8,7 +8,8 @@ import { aggregateResults, orderSorted } from "../src/lib/aggregateResults";
 import { processInput } from "../src/lib/processFile";
 
 const fixtureDir = join(import.meta.dirname, "fixtures");
-const readFixture = (name: string) => readFileSync(join(fixtureDir, name), "utf-8");
+const readFixture = (name: string) =>
+  readFileSync(join(fixtureDir, name), "utf-8");
 
 const FILES = ["Labels 0.txt", "Labels 1.txt"];
 const display = orderSorted(
@@ -22,7 +23,10 @@ const display = orderSorted(
 function setup(results = display, files = FILES) {
   const container = document.createElement("div");
   document.body.appendChild(container);
-  const dispose = render(() => <EBirdExport results={results} activeFiles={files} />, container);
+  const dispose = render(
+    () => <EBirdExport results={results} activeFiles={files} />,
+    container,
+  );
   return { container, dispose };
 }
 
@@ -66,7 +70,7 @@ describe("per-file mode", () => {
     const row = findBirdRow(container, "Great Horned Owl")!;
     const tds = row.querySelectorAll("td");
     expect(tds[1].textContent).toBe("1|NFC 1"); // Labels 0
-    expect(tds[2].textContent).toBe(" ");        // Labels 1: absent
+    expect(tds[2].textContent).toBe(" "); // Labels 1: absent
     dispose();
   });
 });
@@ -125,9 +129,20 @@ describe("aggregated mode", () => {
 
 // The number of metadata rows defined in EBirdExport
 const rows = [
-  "Location", "Latitude", "Longitude", "Date", "Start Time",
-  "State", "Country", "Protocol", "Num Observers", "Duration (min)",
-  "All Obs Reported (Y/N)", "Dist Traveled (Miles)", "Area Covered (Acres)", "Notes",
+  "Location",
+  "Latitude",
+  "Longitude",
+  "Date",
+  "Start Time",
+  "State",
+  "Country",
+  "Protocol",
+  "Num Observers",
+  "Duration (min)",
+  "All Obs Reported (Y/N)",
+  "Dist Traveled (Miles)",
+  "Area Covered (Acres)",
+  "Notes",
 ];
 
 describe("defaults dialog", () => {
@@ -180,7 +195,9 @@ describe("defaults dialog", () => {
     ) as HTMLInputElement;
     locationInput.value = "Prospect Park";
 
-    form.dispatchEvent(new SubmitEvent("submit", { bubbles: true, cancelable: true }));
+    form.dispatchEvent(
+      new SubmitEvent("submit", { bubbles: true, cancelable: true }),
+    );
 
     const stored = JSON.parse(localStorage.getItem("ebird-defaults")!);
     expect(stored["Location"]).toBe("Prospect Park");

@@ -70,10 +70,7 @@ describe("processLine", () => {
   test("warns on unknown label part", () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     processLine("0.0\t0.0\twhtspa unknown_part");
-    expect(warnSpy).toHaveBeenCalledWith(
-      "Unknown label part:",
-      "unknown_part",
-    );
+    expect(warnSpy).toHaveBeenCalledWith("Unknown label part:", "unknown_part");
     warnSpy.mockRestore();
   });
 });
