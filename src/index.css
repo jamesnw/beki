@@ -115,6 +115,6 @@ body {
 
 [data-birdlink] {
   [popover] {
-    position-area: inline-end;
+    position-area: block-end;
   }
 }

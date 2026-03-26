@@ -35,7 +35,7 @@ const groups: Map<string, NFCGroup> = new Map([
   [
     "HSSP",
     {
-      description: "",
+      description: "High sibilant sparrow",
       link: "",
       birds: ["graspa", "vesspa", "whcspa", "seaspa"],
       parent: "Passerellidae",
@@ -44,7 +44,7 @@ const groups: Map<string, NFCGroup> = new Map([
   [
     "SBUF",
     {
-      description: "Single-banded up or flat?",
+      description: "Single-banded up/flat warblers",
       link: "",
       birds: [
         "yerwar",
@@ -62,7 +62,7 @@ const groups: Map<string, NFCGroup> = new Map([
   [
     "DESP",
     {
-      description: "Descending Sparrows",
+      description: "Descending sparrows",
       link: "http://oldbird.org/pubs/fcmb/pages/deseeps.htm",
       birds: [
         "fiespa",
@@ -79,7 +79,7 @@ const groups: Map<string, NFCGroup> = new Map([
   [
     "DEWA",
     {
-      description: "Descending Warblers",
+      description: "Descending warblers",
       link: "http://oldbird.org/pubs/fcmb/pages/deseeps.htm",
       birds: ["yetwar", "norpar", "pinwar"],
       parent: "Parulidae",
@@ -132,7 +132,7 @@ const groups: Map<string, NFCGroup> = new Map([
   [
     "ZEEP",
     {
-      description: "Onomatopoeia",
+      description: "Warblers, Onomatopoeia",
       link: "http://oldbird.org/pubs/fcmb/pages/zeep.htm",
       birds: [
         "norwat",
@@ -155,7 +155,7 @@ const groups: Map<string, NFCGroup> = new Map([
   [
     "DBUP",
     {
-      description: "Double-Banded UP-seep",
+      description: "Double-Banded UP-sweep warblers",
       link: "",
       birds: [
         "tenwar",
@@ -177,7 +177,7 @@ const groups: Map<string, NFCGroup> = new Map([
   [
     "BZWA",
     {
-      description: "BuZzing WArblers.",
+      description: "BuZzy WArblers.",
       link: "http://oldbird.org/pubs/fcmb/pages/buzz.htm",
       birds: ["chswar", "kirwar", "hoowar", "comyel"],
       parent: "Parulidae",
@@ -212,7 +212,7 @@ const groups: Map<string, NFCGroup> = new Map([
   [
     "WITH",
     {
-      description: "",
+      description: "White's Thrush complex",
       link: "",
       birds: [
         "dusthr2",
