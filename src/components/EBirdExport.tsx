@@ -86,7 +86,7 @@ function EBirdExport(props: {
   };
 
   return (
-    <>
+    <div class="stack">
       <section class="ebird-export stack">
         <h2>eBird Export</h2>
         <div class="cluster">
@@ -169,6 +169,38 @@ function EBirdExport(props: {
           </tbody>
         </table>
       </section>
+      <section class="callout">
+        <h2>Instructions</h2>
+        <ul>
+          <li>Date format: month/day/year (e.g., 3/28/2026).</li>
+          <li>
+            Start time: either military time (e.g., 08:00 or 14:50) or
+            in twelve-hour format (e.g., "8:00 AM" or "2:50 PM").
+          </li>
+          <li>Duration: minutes, not hours</li>
+        </ul>
+        <h3>Resources</h3>
+        <ul>
+          <li>
+            <a
+              href="https://support.ebird.org/en/support/solutions/articles/48000907878-upload-spreadsheet-data-to-ebird"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Uploading Spreadsheet Data to eBird (Official eBird guide)
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://ebird.org/import/upload.form?theme=ebird"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              eBird Upload Form - Use Format "eBird Checklist Format (Grid)"
+            </a>
+          </li>
+        </ul>
+      </section>
       <dialog id={DIALOG_ID} ref={dialogRef}>
         <form onSubmit={submitDefaults} class="stack">
           <h3>Edit defaults</h3>
@@ -190,7 +222,7 @@ function EBirdExport(props: {
           </div>
         </form>
       </dialog>
-    </>
+    </div>
   );
 }
 
