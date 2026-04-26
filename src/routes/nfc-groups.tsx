@@ -1,6 +1,7 @@
 import { For } from "solid-js";
 import { nfcWithBirds, type BirdCode } from "../codes";
 import nfcGroups from "../data/nfc";
+import BirdItemPopper from "../components/BirdItemPopper";
 
 declare module "solid-js" {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -91,38 +92,10 @@ export default NfcGroups;
 
 function NFCBirdListItem(bird: BirdCode) {
   return (
-    <li data-birdlink>
-      <a href={`/bird/${bird.SPEC}`} interestfor={bird.SPEC}>
-        {bird.COMMONNAME}
-      </a>{" "}
-      ({bird.SPEC})
-      <div popover="hint" id={bird.SPEC} class="callout vivid">
-        <div>
-          {bird.EBIRD && (
-            <div>
-              <a
-                href={`https://ebird.org/species/${bird.EBIRD}`}
-                target="_blank"
-              >
-                eBird
-              </a>{" "}
-              <a
-                href={`https://media.ebird.org/catalog?birdOnly=true&taxonCode=${bird.EBIRD}&mediaType=audio&tag=flight_call`}
-                target="_blank"
-                aria-label="Flight calls"
-                class="size-3xl"
-              >
-                ♪
-              </a>
-            </div>
-          )}
-          {bird.OLDBIRD && (
-            <a href={bird.OLDBIRD} target="_blank">
-              OldBird reference
-            </a>
-          )}
-        </div>
-      </div>
-    </li>
+    <BirdItemPopper
+      bird={bird}
+      linkText={bird.COMMONNAME}
+      postText={bird.SPEC}
+    />
   );
 }

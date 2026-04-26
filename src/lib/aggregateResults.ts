@@ -1,5 +1,5 @@
 import groups from "../data/nfc";
-import { ebirdToBirdMap, type BirdCode } from "../codes";
+import { ebirdToBirdMap, spec6ToBirdMap, specToBirdMap, type BirdCode } from "../codes";
 import type { NFCGroup } from "../data/nfc";
 import type { Result } from "./processFile";
 
@@ -54,6 +54,8 @@ export function aggregateResults(
       })),
       fullBird:
         ebirdToBirdMap.get(name) ||
+        spec6ToBirdMap.get(name.toUpperCase()) ||
+        specToBirdMap.get(name.toUpperCase()) ||
         shortBirdCodes.find((sb) => sb.SPEC === name),
       nfcGroup: groups.get(name),
       fileCounts: Object.fromEntries(
