@@ -1,4 +1,4 @@
-import { processInput, type Result } from "../lib/processFile";
+import { processInput, type Result} from "../lib/processFile";
 
 interface ProcessFileMessage {
   type: "PROCESS_FILE";
@@ -11,6 +11,7 @@ export interface ProcessFileResponse {
   results: Result[];
   bucketCounts: Record<string, number>;
   fileName: string;
+  warnings: string[];
 }
 
 const NUMBER_OF_BUCKETS = 20;
@@ -47,7 +48,7 @@ self.addEventListener("message", (event: MessageEvent<ProcessFileMessage>) => {
   const { type, content, fileName } = event.data;
 
   if (type === "PROCESS_FILE") {
-    const results = processInput(content, fileName);
+    const { results, warnings } = processInput(content, fileName);
     const bucketCounts = getBucketCounts(results);
 
     const response: ProcessFileResponse = {
@@ -55,6 +56,7 @@ self.addEventListener("message", (event: MessageEvent<ProcessFileMessage>) => {
       results,
       bucketCounts,
       fileName,
+      warnings,
     };
 
     self.postMessage(response);

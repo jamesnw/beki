@@ -36,6 +36,7 @@ function EBirdExport(props: {
 }) {
   let dialogRef!: HTMLDialogElement;
   const [tbody, setTbody] = createSignal<HTMLTableSectionElement | null>(null);
+  const [alerts, setAlerts] = createSignal<string[]>([]);
   const [aggregated, setAggregated] = createSignal(false);
 
   const loadedDefaults = (): Record<string, string> => {
@@ -69,18 +70,30 @@ function EBirdExport(props: {
 
   const makeExport = () => {
     if (!tbody()) return;
-    const csv = [...tbody()!.childNodes].reduce((acc, row) => {
+    let hasComma = false;
+    let date = "";
+    const csv = [...tbody()!.childNodes].reduce((acc, row, index) => {
       const cells = [...row.childNodes].map(
         (cell) => cell.textContent?.trim() ?? "",
       );
+      if (index === 3) date = cells[2].replaceAll("/", "-"); // Date is 4th row, 3rd cell. Replace slashes to avoid filename issues.
+      if (cells.some((c) => c.includes(","))) {
+        hasComma = true;
+      }
       acc.push(cells.join(","));
       return acc;
     }, [] as string[]);
+    if (hasComma) {
+      setAlerts((prev: string[]) => [
+        ...prev,
+        "Warning: Some cells contain commas, which will break eBird. No one wants that.",
+      ]);
+    }
     const blob = new Blob([csv.join("\n")], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "ebird-export.csv";
+    a.download = `ebird-export-${date}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -103,6 +116,13 @@ function EBirdExport(props: {
             Aggregate to single checklist
           </label>
         </div>
+        <Show when={alerts().length > 0}>
+          <div class="callout warning">
+            <ul>
+              <For each={alerts()}>{(alert: string) => <li>{alert}</li>}</For>
+            </ul>
+          </div>
+        </Show>
 
         <table class="table table-striped">
           <tbody ref={setTbody}>
@@ -174,8 +194,8 @@ function EBirdExport(props: {
         <ul>
           <li>Date format: month/day/year (e.g., 3/28/2026).</li>
           <li>
-            Start time: either military time (e.g., 08:00 or 14:50) or
-            in twelve-hour format (e.g., "8:00 AM" or "2:50 PM").
+            Start time: either military time (e.g., 08:00 or 14:50) or in
+            twelve-hour format (e.g., "8:00 AM" or "2:50 PM").
           </li>
           <li>Duration: minutes, not hours</li>
         </ul>

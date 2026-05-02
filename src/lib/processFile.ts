@@ -9,8 +9,14 @@ export interface Result {
   fileName?: string;
 }
 
-export const processLine = (line: string): Result | undefined => {
+export interface ProcessResult {
+  results: Result[];
+  warnings: string[];
+}
+
+export const processLine = (line: string): ProcessResult | undefined => {
   const parts = line.split("\t");
+  const warnings = [];
   if (parts.length < 3) {
     return;
   }
@@ -51,15 +57,17 @@ export const processLine = (line: string): Result | undefined => {
     else if (labelParts[i].match(/^\+\d+$/))
       output.additional = parseInt(labelParts[i].substring(1));
     else if (labelParts[i] === "audio") output.audio = true;
-    else console.warn("Unknown label part:", labelParts[i]);
+    else warnings?.push(`Unknown label part: "${labelParts[i]}" in line: "${line}"`);
   }
-  return output;
+  return { results: [output], warnings };
 };
 
-export const processInput = (input: string, fileName: string): Result[] => {
-  let lines = input.split("\n").map(processLine) as Result[];
+export const processInput = (input: string, fileName: string): ProcessResult => {
+  const results = input.split("\n").map((line) => processLine(line)) as ProcessResult[];
+  let lines = results.flatMap((r) => r?.results || []);
+  const warnings = results.flatMap((r) => r?.warnings || []);
   lines = lines.filter((l) => l?.name !== undefined);
   lines = lines.filter((l) => l !== undefined);
   lines = lines.map((l) => ({ ...l, fileName }));
-  return lines;
+  return { results: lines, warnings };
 };

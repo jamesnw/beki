@@ -33,6 +33,7 @@ function Merge() {
   const [activeTab, setActiveTab] = createSignal<"results" | "ebird">(
     "results",
   );
+  const [fileWarnings, setFileWarnings] = createSignal<Record<string, string[]>>({});
 
   // Initialize the worker
   const worker = new FileProcessorWorker();
@@ -40,7 +41,7 @@ function Merge() {
   // Handle messages from the worker
   worker.onmessage = (event: MessageEvent<ProcessFileResponse>) => {
     if (event.data.type === "FILE_PROCESSED") {
-      const { results: newResults, fileName, bucketCounts } = event.data;
+      const { results: newResults, fileName, bucketCounts, warnings } = event.data;
       setFileBucketCounts((prev) => ({
         ...prev,
         [fileName]: bucketCounts,
@@ -57,6 +58,9 @@ function Merge() {
         const filtered = files.filter((f) => f !== fileName);
         return [...filtered, fileName];
       });
+
+      // Store warnings for this file
+      setFileWarnings((prev: Record<string, string[]>) => ({ ...prev, [fileName]: warnings }));
 
       // Remove from processing set
       setProcessingFiles((files) => {
@@ -87,6 +91,13 @@ function Merge() {
     processedFiles()
       .filter((f) => !excludedFiles().has(f))
       .sort();
+
+  const activeWarnings = () => {
+    const entries = Object.entries(fileWarnings()) as [string, string[]][];
+    return entries
+      .filter(([f]) => !excludedFiles().has(f))
+      .filter(([, w]) => w.length > 0);
+  };
 
   const display = () =>
     aggregateResults(activeResults(), activeFilesList(), combine());
@@ -193,6 +204,7 @@ function Merge() {
                 setExcludedFiles(new Set<string>());
                 setProcessingFiles(new Set<string>());
                 setFileTexts({});
+                setFileWarnings({});
                 setEditingName(null);
               }}
             >
@@ -230,6 +242,20 @@ function Merge() {
           {processingFiles().size > 1 ? "s" : ""}...
         </div>
       )}
+      <Show when={activeWarnings().length > 0}>
+        <div class="callout warning">
+          <strong>Unknown label parts found:</strong>
+          <ul>
+            <For each={activeWarnings()}>
+              {([fileName, warns]: [string, string[]]) => (
+                <li>
+                  <em>{fileName}</em>: {warns.join(", ")}
+                </li>
+              )}
+            </For>
+          </ul>
+        </div>
+      </Show>
       <ul class="list-inline">
         <For each={processedFiles().sort()}>
           {(f) => (
