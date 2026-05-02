@@ -31,13 +31,16 @@ export const processLine = (line: string): ProcessResult | undefined => {
     let [_, name, strength] = res;
     strength = parseFloat(strength).toFixed(2);
     return {
-      start,
-      end,
-      name,
-      strength,
-      count: 1,
-      additional: 0,
-      audio: false,
+      results: [{
+        start,
+        end,
+        name,
+        strength,
+        count: 1,
+        additional: 0,
+        audio: false,
+      }],
+      warnings: [],
     };
   }
   // My format

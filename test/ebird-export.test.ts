@@ -19,35 +19,35 @@ function readFixture(name: string): string {
 
 describe("processInput", () => {
   test("Labels 0 - basic labels", () => {
-    const results = processInput(readFixture("Labels 0.txt"), "Labels 0.txt");
+    const {results} = processInput(readFixture("Labels 0.txt"), "Labels 0.txt");
     expect(results).toHaveLength(9);
     expect(results.every((r) => r.fileName === "Labels 0.txt")).toBe(true);
   });
 
   test("Labels 1 - count in label", () => {
-    const results = processInput(readFixture("Labels 1.txt"), "Labels 1.txt");
+    const {results} = processInput(readFixture("Labels 1.txt"), "Labels 1.txt");
     expect(results).toHaveLength(13);
     const counted = results.find((r) => r.name === "whtspa" && r.count === 2);
     expect(counted).toBeDefined();
   });
 
   test("Labels 2 - many entries", () => {
-    const results = processInput(readFixture("Labels 2.txt"), "Labels 2.txt");
+    const {results} = processInput(readFixture("Labels 2.txt"), "Labels 2.txt");
     expect(results).toHaveLength(19);
   });
 
   test("Labels 3 - minimal", () => {
-    const results = processInput(readFixture("Labels 3.txt"), "Labels 3.txt");
+    const {results} = processInput(readFixture("Labels 3.txt"), "Labels 3.txt");
     expect(results).toHaveLength(2);
   });
 
   test("Labels 4 - minimal", () => {
-    const results = processInput(readFixture("Labels 4.txt"), "Labels 4.txt");
+    const {results} = processInput(readFixture("Labels 4.txt"), "Labels 4.txt");
     expect(results).toHaveLength(3);
   });
 
   test("Labels 5 - minimal", () => {
-    const results = processInput(readFixture("Labels 5.txt"), "Labels 5.txt");
+    const {results} = processInput(readFixture("Labels 5.txt"), "Labels 5.txt");
     expect(results).toHaveLength(2);
   });
 });
@@ -57,7 +57,7 @@ describe("processInput", () => {
 describe("aggregateResults - single file", () => {
   test("Labels 0 counts per species", () => {
     const file = "Labels 0.txt";
-    const results = processInput(readFixture(file), file);
+    const {results} = processInput(readFixture(file), file);
     const display = aggregateResults(results, [file], false);
 
     const byName = Object.fromEntries(display.map((d) => [d.name, d]));
@@ -74,7 +74,7 @@ describe("aggregateResults - single file", () => {
 
   test("Labels 1 - whtspa count sums correctly", () => {
     const file = "Labels 1.txt";
-    const results = processInput(readFixture(file), file);
+    const {results} = processInput(readFixture(file), file);
     const display = aggregateResults(results, [file], false);
     const byName = Object.fromEntries(display.map((d) => [d.name, d]));
 
@@ -87,7 +87,7 @@ describe("aggregateResults - single file", () => {
 
   test("Labels 2 - warbler counts", () => {
     const file = "Labels 2.txt";
-    const results = processInput(readFixture(file), file);
+    const {results} = processInput(readFixture(file), file);
     const display = aggregateResults(results, [file], false);
     const byName = Object.fromEntries(display.map((d) => [d.name, d]));
 
@@ -109,7 +109,7 @@ describe("aggregateResults - multiple files", () => {
     "Labels 5.txt",
   ];
 
-  const allResults = files.flatMap((f) => processInput(readFixture(f), f));
+  const allResults = files.flatMap((f) => processInput(readFixture(f), f).results);
 
   test("fileCounts are isolated per file", () => {
     const display = aggregateResults(allResults, files, false);
@@ -140,7 +140,7 @@ describe("aggregateResults - multiple files", () => {
 describe("formatBirdCsvRowsAggregated", () => {
   test("sums counts across all files into one column", () => {
     const files = ["Labels 0.txt", "Labels 1.txt"];
-    const allResults = files.flatMap((f) => processInput(readFixture(f), f));
+    const allResults = files.flatMap((f) => processInput(readFixture(f), f).results);
     const display = aggregateResults(allResults, files, false);
     const ordered = orderSorted(display);
     const rows = formatBirdCsvRowsAggregated(ordered);
@@ -157,7 +157,7 @@ describe("formatBirdCsvRowsAggregated", () => {
   test("species with zero total count renders as space", () => {
     // Labels 3 has no grhowl; Labels 0 has 1 grhowl
     const files = ["Labels 3.txt"];
-    const allResults = files.flatMap((f) => processInput(readFixture(f), f));
+    const allResults = files.flatMap((f) => processInput(readFixture(f), f).results);
     const display = aggregateResults(allResults, files, false);
     const ordered = orderSorted(display);
     const rows = formatBirdCsvRowsAggregated(ordered);
@@ -175,7 +175,7 @@ describe("formatBirdCsvRowsAggregated", () => {
       "Labels 4.txt",
       "Labels 5.txt",
     ];
-    const allResults = files.flatMap((f) => processInput(readFixture(f), f));
+    const allResults = files.flatMap((f) => processInput(readFixture(f), f).results);
     const display = aggregateResults(allResults, files, false);
     const ordered = orderSorted(display);
     const rows = formatBirdCsvRowsAggregated(ordered);
@@ -188,7 +188,7 @@ describe("formatBirdCsvRowsAggregated", () => {
 describe("formatBirdCsvRows", () => {
   test("single file - species with zero count renders as space", () => {
     const files = ["Labels 0.txt", "Labels 3.txt"];
-    const allResults = files.flatMap((f) => processInput(readFixture(f), f));
+    const allResults = files.flatMap((f) => processInput(readFixture(f), f).results);
     const display = aggregateResults(allResults, files, false);
     const ordered = orderSorted(display);
     const rows = formatBirdCsvRows(ordered, files);
@@ -213,7 +213,7 @@ describe("formatBirdCsvRows", () => {
       "Labels 4.txt",
       "Labels 5.txt",
     ];
-    const allResults = files.flatMap((f) => processInput(readFixture(f), f));
+    const allResults = files.flatMap((f) => processInput(readFixture(f), f).results);
     const display = aggregateResults(allResults, files, false);
     const ordered = orderSorted(display);
     const rows = formatBirdCsvRows(ordered, files);

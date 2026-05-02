@@ -14,7 +14,7 @@ const readFixture = (name: string) =>
 const FILES = ["Labels 0.txt", "Labels 1.txt"];
 const display = orderSorted(
   aggregateResults(
-    FILES.flatMap((f) => processInput(readFixture(f), f)),
+    FILES.flatMap((f) => processInput(readFixture(f), f).results),
     FILES,
     false,
   ),

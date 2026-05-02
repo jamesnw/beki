@@ -10,7 +10,7 @@
     "lint": "eslint",
     "format": "prettier --write .",
     "clean": "yarn lint && yarn format",
-    "test": "vitest run"
+    "test": "vitest run --coverage"
   },
   "dependencies": {
     "@solidjs/router": "^0.15.3",

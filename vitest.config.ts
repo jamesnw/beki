@@ -8,7 +8,7 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       include: ["src/components/**", "src/lib/**", "src/optionStore.ts"],
-      reporter: ["text", "json-summary", "html"],
+      reporter: ["text-summary", "html"],
     },
   },
 });
