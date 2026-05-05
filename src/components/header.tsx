@@ -1,3 +1,5 @@
+import Logo from "./logo";
+
 function Header() {
   return (
     <nav class="nav-wrap split align-center margin-start-s margin-end-m">
@@ -7,12 +9,7 @@ function Header() {
           // style="--color: var(--color-text-normal); --color-hover: var(--focus-ring-color);"
           href="/"
         >
-          <img
-            src="/logo.svg"
-            alt="BEKI Birdcode Logo"
-            width="64"
-            height="64"
-          />
+          <Logo size="64px"  alt="BEKI Birdcode Logo" />
           <div class="split gap-4xs align-center">
             BEKI <small>(Birdcode Easy Knowing Index)</small>
           </div>

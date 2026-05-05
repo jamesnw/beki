@@ -118,3 +118,22 @@ body {
     position-area: block-end;
   }
 }
+
+.passerine:hover .wings path {
+	animation: flap 2s infinite;
+}
+
+@keyframes flap {
+	from {
+		rotate: 0deg;
+	}
+	40% {
+		rotate: 25deg;
+	}
+	50% {
+		rotate: 0deg;
+	}
+	to {
+		rotate: 0deg;
+	}
+}
