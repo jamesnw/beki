@@ -6,23 +6,23 @@ export default function Logo(props: {size?: string, alt?: string}) {
       width={props.size || "100px"}
       height={props.size || "100px"}
       data-original="3494086386815991"
-      style="--bg: transparent; --theme-cyan: #00afc4; --body: var(--theme-cyan); --body-second: oklch(from var(--theme-cyan) calc(l - 0.1) calc(c + 0.05) h); --body-third: oklch(from var(--theme-cyan) calc(l + 0.1) calc(c + 0.05) h); --eyes: white; --pupils: black; --stroke: black; --beak: var(--theme-cyan);"
+      style={{"--bg":"transparent","--theme-cyan":"#00afc4","--body":"var(--theme-cyan)","--body-second":"oklch(from var(--theme-cyan) calc(l - 0.1) calc(c + 0.05) h)","--body-third":"oklch(from var(--theme-cyan) calc(l + 0.1) calc(c + 0.05) h)","--eyes":"white","--pupils":"black","--stroke":"black","--beak":"var(--theme-cyan)"}}
       class="passerine"
       alt={props.alt || "BEKI Birdcode Logo"}
     >
       <g class="bg">
-        <rect width="100" height="100" fill="var(--bg)"></rect>
+        <rect width="100" height="100" fill="var(--bg)" />
       </g>
       <path
         d="M 50 63 l 7 29 l 5 -2 l -4 3 l 4 0 l -5 2 l 5 1 l -7 0 l 1 -4 l -7 -29 Z"
         stroke="var(--stroke)"
         fill="var(--body-second)"
-      ></path>
+       />
       <path
         d="M 60 63 l 7 27 l 5 -2 l -4 3 l 4 0 l -5 2 l 5 1 l -7 0 l 1 -4 l -7 -27 Z"
         stroke="var(--stroke)"
         fill="var(--body-second)"
-      ></path>
+       />
       <g class="body">
         <g>
           {" "}
@@ -73,7 +73,7 @@ export default function Logo(props: {size?: string, alt?: string}) {
           d="M 4 87 q 19 -37 39 -40 q 19 0 29 7 q 7 6 -22 13 q -26 -2 -49 32 Z"
           stroke="var(--stroke)"
           fill="var(--body-second)"
-        ></path>
+         />
       </g>
       <g case="1" class="eyes">
         <g>
@@ -103,7 +103,7 @@ export default function Logo(props: {size?: string, alt?: string}) {
           transform="translate(4, 0)"
           transform-origin="70 30"
           class="pupil"
-        ></circle>
+         />
       </g>
 
       <g class="beak">
@@ -112,7 +112,7 @@ export default function Logo(props: {size?: string, alt?: string}) {
           d="M 80 41 q 12 3 29 -2 q -12 -4 -30 -7 l 2 5 Z"
           stroke="var(--stroke)"
           fill="var(--beak)"
-        ></path>
+         />
       </g>
     </svg>
   );
