@@ -173,8 +173,8 @@ describe("defaults dialog", () => {
       (r) => r.querySelector("th")?.textContent === "Num Observers",
     )!;
     expect(numObsRow).toBeTruthy();
-    // First contenteditable td (index 1, after the spacer) should show "5"
-    const cell = numObsRow.querySelector("td[contenteditable]");
+    // First contenteditable td, not in header(index 1, after the spacer) should show "5"
+    const cell = numObsRow.querySelectorAll("td[contenteditable]")[1];
     expect(cell?.textContent).toBe("5");
     dispose();
   });

@@ -30,6 +30,13 @@ const storableRows = rows.filter((r) => r.store !== false);
 
 const DIALOG_ID = "ebird-defaults-dialog";
 
+const labelToStartTime = (label: () => string) => {
+  const hour = label().match(/Labels (\d{1,2}).*/)?.[1];
+  if (!hour) {debugger; return label; }
+  if (hour.length === 1) return `0${hour}:00`;
+  return `${hour}:00`;
+}
+
 function EBirdExport(props: {
   results: DisplayResult[];
   activeFiles: string[];
@@ -130,15 +137,18 @@ function EBirdExport(props: {
               {(row) => (
                 <tr>
                   <th scope="row">{row().display ?? row().label}</th>
-                  <td> </td>
+                  <td contentEditable> </td>
                   <Show
                     when={aggregated()}
                     fallback={
                       <Index each={props.activeFiles}>
-                        {() => (
-                          <td contentEditable>
+                        {(file: () => string) => (
+                          row().label === "Start Time" ? ( <td contentEditable>
+                            {labelToStartTime(file)}
+                          </td>) :
+                         ( <td contentEditable>
                             {defaults()[row().label] ?? row().default}
-                          </td>
+                          </td>)
                         )}
                       </Index>
                     }
@@ -153,7 +163,7 @@ function EBirdExport(props: {
             <For each={props.results}>
               {(result) => (
                 <tr>
-                  <th scope="row">
+                  <th scope="row" contentEditable>
                     {result.fullBird?.COMMONNAME ?? result.name}
                   </th>
                   <td> </td>
@@ -165,7 +175,7 @@ function EBirdExport(props: {
                           const fc = () => result.fileCounts?.[file()];
                           const count = () => fc()?.count ?? 0;
                           const additional = () => fc()?.additional ?? 0;
-                          if (count() === 0) return <td> </td>;
+                          if (count() === 0) return <td contentEditable> </td>;
                           return (
                             <td contentEditable>
                               {count()}|NFC {count() + additional()}
@@ -180,7 +190,7 @@ function EBirdExport(props: {
                         {result.count}|NFC {result.totalCount}
                       </td>
                     ) : (
-                      <td> </td>
+                      <td contentEditable> </td>
                     )}
                   </Show>
                 </tr>

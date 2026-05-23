@@ -1,20 +1,25 @@
 import { Show } from "solid-js";
 import type { BirdCode } from "../codes";
+import { Dynamic } from "solid-js/web";
 
 interface NFCBirdListItemProps {
   bird: BirdCode;
   linkText: string | Element;
-  postText: string | Element;
+  postText?: string | Element;
+  elementType?: string;
 }
 
 export default function BirdItemPopper(props: NFCBirdListItemProps) {
   const { bird, linkText, postText } = props;
   return (
-    <li data-birdlink>
+    <Dynamic component={props.elementType || "li"} data-birdlink>
       <a href={`/bird/${bird.SPEC}`} interestfor={bird.SPEC}>
         {linkText}
       </a>{" "}
-      ({postText})
+      {postText && <>
+        {postText}
+      </>
+        }
       <Show when={bird.EBIRD || bird.OLDBIRD}>
       <div popover="hint" id={bird.SPEC} class="callout vivid">
         <div>
@@ -44,6 +49,6 @@ export default function BirdItemPopper(props: NFCBirdListItemProps) {
         </div>
       </div>
       </Show>
-    </li>
+    </Dynamic>
   );
 }

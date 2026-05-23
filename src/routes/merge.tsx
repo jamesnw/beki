@@ -10,6 +10,7 @@ import {
 import type { DisplayResult } from "../lib/aggregateResults";
 import Sparkline from "../components/Sparkline";
 import EBirdExport from "../components/EBirdExport";
+import BirdItemPopper from "../components/BirdItemPopper";
 
 export type { DisplayResult };
 
@@ -382,18 +383,14 @@ function Merge() {
                       <td>{r.totalCount}</td>
                       <td>{r.audio ? "Yes" : "No"}</td>
                       <td>
+                        
                         {r.fullBird &&
                           (shortBirdCodes.find(
                             (sb) => sb.SPEC === r.fullBird?.SPEC,
                           ) ? (
                             <span>{r.fullBird.COMMONNAME}</span>
                           ) : (
-                            <a
-                              target="_blank"
-                              href={`/bird/${r.fullBird.SPEC}`}
-                            >
-                              {r.fullBird.COMMONNAME}
-                            </a>
+                            <BirdItemPopper bird={r.fullBird} linkText={r.fullBird.COMMONNAME} elementType="span"/>
                           ))}
                         {r.nfcGroup && (
                           <a target="_blank" href={`/nfc#${r.name}`}>
