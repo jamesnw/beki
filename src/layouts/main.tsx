@@ -1,6 +1,5 @@
 import type { RouteSectionProps } from "@solidjs/router";
 import Header from "../components/header";
-import "interestfor";
 
 const Main = (props: RouteSectionProps) => {
   return (
