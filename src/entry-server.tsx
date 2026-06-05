@@ -5,6 +5,7 @@ import codes from "./codes";
 // Routes prerendered to static HTML at build time (see prerender.js).
 export const prerenderRoutes = [
   "/about",
+  "/nfc",
   ...codes.map((c) => `/bird/${c.SPEC}`),
 ];
 
