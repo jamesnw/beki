@@ -2,6 +2,8 @@
 import { render } from "solid-js/web";
 import { Route, Router } from "@solidjs/router";
 import "./index.css";
+import "kelpui/js/dark-mode-auto.js";
+import "kelpui/js/kelp.js";
 import Main from "./layouts/main";
 import App from "./routes/CodeSearch";
 import About from "./routes/about";
