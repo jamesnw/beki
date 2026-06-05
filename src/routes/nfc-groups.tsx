@@ -14,16 +14,6 @@ declare module "solid-js" {
 }
 
 function NfcGroups() {
-  createEffect(() => {
-    // Scroll to the section if there's a hash in the URL.
-    const hash = window.location.hash;
-    if (hash) {
-      const el = document.getElementById(hash.substring(1));
-      if (el) {
-        el.scrollIntoView();
-      }
-    }
-  });
   return (
     <div
       class="toc-watch"
