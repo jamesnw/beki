@@ -1,4 +1,4 @@
-import { For } from "solid-js";
+import { For, createEffect } from "solid-js";
 import { nfcWithBirds, type BirdCode } from "../codes";
 import nfcGroups from "../data/nfc";
 import BirdItemPopper from "../components/BirdItemPopper";
@@ -14,6 +14,16 @@ declare module "solid-js" {
 }
 
 function NfcGroups() {
+  createEffect(() => {
+    // Scroll to the section if there's a hash in the URL.
+    const hash = window.location.hash;
+    if (hash) {
+      const el = document.getElementById(hash.substring(1));
+      if (el) {
+        el.scrollIntoView();
+      }
+    }
+  });
   return (
     <div
       class="toc-watch"
