@@ -6,7 +6,7 @@ import solid from "eslint-plugin-solid";
 import { defineConfig, globalIgnores } from "eslint/config";
 
 export default defineConfig([
-  globalIgnores(["dist/*"]),
+  globalIgnores(["dist/*", "dist-ssr/*"]),
   {
     files: ["src/**/*.{js,mjs,cjs,ts,mts,cts}"],
     plugins: { js },
