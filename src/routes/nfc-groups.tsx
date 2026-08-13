@@ -42,8 +42,29 @@ function NfcGroups() {
         to group Nocturnal Flight Calls (NFC) that are often hard or impossible
         to differentiate.
       </div>
-      <div class="sidecar-end">
-        <kelp-heading-anchors>
+      <div class="sidecar">
+        {" "}
+        <div>
+          <nav id="toc" class="callout vivid primary">
+            <h2>Groups</h2>
+            <ul class="list-unstyled">
+              <For
+                each={Object.keys(nfcWithBirds).sort((a, b) =>
+                  a.localeCompare(b),
+                )}
+              >
+                {(nfcGroup) => (
+                  <li style={{ "--for": `--${nfcGroup}` }}>
+                    <a class="toc-link" href={`#${nfcGroup}`}>
+                      {nfcGroup}
+                    </a>
+                  </li>
+                )}
+              </For>
+            </ul>
+          </nav>
+        </div>
+        <kelp-heading-anchors style="min-width: max-content;">
           <For
             each={Object.entries(nfcWithBirds).sort(([a], [b]) =>
               a.localeCompare(b),
@@ -73,26 +94,6 @@ function NfcGroups() {
             )}
           </For>
         </kelp-heading-anchors>
-        <div>
-          <nav id="toc" class="callout vivid primary">
-            <h2>Groups</h2>
-            <ul class="list-unstyled">
-              <For
-                each={Object.keys(nfcWithBirds).sort((a, b) =>
-                  a.localeCompare(b),
-                )}
-              >
-                {(nfcGroup) => (
-                  <li style={{ "--for": `--${nfcGroup}` }}>
-                    <a class="toc-link" href={`#${nfcGroup}`}>
-                      {nfcGroup}
-                    </a>
-                  </li>
-                )}
-              </For>
-            </ul>
-          </nav>
-        </div>
       </div>
     </div>
   );
