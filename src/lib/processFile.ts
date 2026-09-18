@@ -60,6 +60,7 @@ export const processLine = (line: string): ProcessResult | undefined => {
     else if (labelParts[i].match(/^\+\d+$/))
       output.additional = parseInt(labelParts[i].substring(1));
     else if (labelParts[i] === "audio") output.audio = true;
+    else if (labelParts[i] === '') continue;
     else warnings?.push(`Unknown label part: "${labelParts[i]}" in line: "${line}"`);
   }
   return { results: [output], warnings };

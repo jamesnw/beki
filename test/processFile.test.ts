@@ -71,6 +71,14 @@ describe("processLine", () => {
     const result = processLine("0.0\t0.0\twhtspa unknown_part");
     expect(result?.warnings?.[0]).toMatch(/Unknown label part.*unknown_part/);
   });
+  test("no warning on known label parts", () => {
+    const result = processLine("0.0\t0.0\twhtspa 2 +3 audio");
+    expect(result?.warnings).toHaveLength(0);
+  });
+  test("ignores empty label parts", () => {
+    const result = processLine("0.0\t0.0\tw ");
+    expect(result?.warnings).toHaveLength(0);
+  });
 });
 
 describe("processInput", () => {
