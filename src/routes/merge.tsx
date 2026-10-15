@@ -1,4 +1,5 @@
-import { createSignal, onCleanup, For, Show } from "solid-js";
+import { createSignal, createEffect, onCleanup, For, Show } from "solid-js";
+import { useLocation, useNavigate } from "@solidjs/router";
 import FileProcessorWorker from "../workers/fileProcessor.worker.ts?worker";
 import type { ProcessFileResponse } from "../workers/fileProcessor.worker";
 import type { Result } from "../lib/processFile";
@@ -11,6 +12,8 @@ import type { DisplayResult } from "../lib/aggregateResults";
 import Sparkline from "../components/Sparkline";
 import EBirdExport from "../components/EBirdExport";
 import BirdItemPopper from "../components/BirdItemPopper";
+import { createShareLink, loadShare, parseShareHash } from "../lib/share";
+import type { SharePayload } from "../lib/share";
 
 export type { DisplayResult };
 
@@ -34,7 +37,42 @@ function Merge() {
   const [activeTab, setActiveTab] = createSignal<"results" | "ebird">(
     "results",
   );
-  const [fileWarnings, setFileWarnings] = createSignal<Record<string, string[]>>({});
+  const [fileWarnings, setFileWarnings] = createSignal<
+    Record<string, string[]>
+  >({});
+  const [shared, setShared] = createSignal<SharePayload | null>(null);
+  const [loadError, setLoadError] = createSignal<string | null>(null);
+  const [loadingShare, setLoadingShare] = createSignal(false);
+  const [shareStatus, setShareStatus] = createSignal<
+    | { state: "idle" }
+    | { state: "uploading" }
+    | { state: "ready"; link: string }
+    | { state: "error"; message: string }
+  >({ state: "idle" });
+  const [copied, setCopied] = createSignal(false);
+
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Load shared results when the URL hash holds a share link.
+  createEffect(() => {
+    const hash = location.hash;
+    if (!parseShareHash(hash)) {
+      setShared(null);
+      setLoadError(null);
+      return;
+    }
+    setLoadingShare(true);
+    setLoadError(null);
+    loadShare(hash)
+      .then((payload) => {
+        if (location.hash === hash) setShared(payload);
+      })
+      .catch((err: Error) => {
+        if (location.hash === hash) setLoadError(err.message);
+      })
+      .finally(() => setLoadingShare(false));
+  });
 
   // Initialize the worker
   const worker = new FileProcessorWorker();
@@ -42,7 +80,12 @@ function Merge() {
   // Handle messages from the worker
   worker.onmessage = (event: MessageEvent<ProcessFileResponse>) => {
     if (event.data.type === "FILE_PROCESSED") {
-      const { results: newResults, fileName, bucketCounts, warnings } = event.data;
+      const {
+        results: newResults,
+        fileName,
+        bucketCounts,
+        warnings,
+      } = event.data;
       setFileBucketCounts((prev) => ({
         ...prev,
         [fileName]: bucketCounts,
@@ -61,7 +104,10 @@ function Merge() {
       });
 
       // Store warnings for this file
-      setFileWarnings((prev: Record<string, string[]>) => ({ ...prev, [fileName]: warnings }));
+      setFileWarnings((prev: Record<string, string[]>) => ({
+        ...prev,
+        [fileName]: warnings,
+      }));
 
       // Remove from processing set
       setProcessingFiles((files) => {
@@ -81,19 +127,25 @@ function Merge() {
     return results().filter((r) => !excludedFiles().has(r.fileName || ""));
   };
 
+  const bucketCounts = () => shared()?.bucketCounts ?? fileBucketCounts();
+
   const maxBucketCount = () => {
-    const allCounts = Object.values(fileBucketCounts()).flatMap((bc) =>
+    const allCounts = Object.values(bucketCounts()).flatMap((bc) =>
       Object.values(bc),
     );
     return Math.max(...allCounts, 0);
   };
 
   const activeFilesList = () =>
+    shared()?.files ??
     processedFiles()
       .filter((f) => !excludedFiles().has(f))
       .sort();
 
+  const shownFiles = () => shared()?.files ?? processedFiles().sort();
+
   const activeWarnings = () => {
+    if (shared()) return [];
     const entries = Object.entries(fileWarnings()) as [string, string[]][];
     return entries
       .filter(([f]) => !excludedFiles().has(f))
@@ -101,6 +153,7 @@ function Merge() {
   };
 
   const display = () =>
+    shared()?.display ??
     aggregateResults(activeResults(), activeFilesList(), combine());
 
   const orderSortedDisplay = () => orderSorted(display());
@@ -138,6 +191,36 @@ function Merge() {
       worker.postMessage({ type: "PROCESS_FILE", content: newText, fileName });
     });
     setEditingName(null);
+  };
+
+  const share = async () => {
+    setShareStatus({ state: "uploading" });
+    setCopied(false);
+    const files = activeFilesList();
+    const counts = fileBucketCounts();
+    try {
+      const link = await createShareLink({
+        v: 1,
+        display: display(),
+        files,
+        bucketCounts: Object.fromEntries(
+          files.filter((f) => counts[f]).map((f) => [f, counts[f]]),
+        ),
+        combine: combine(),
+        createdAt: new Date().toISOString(),
+      });
+      setShareStatus({ state: "ready", link });
+    } catch (err) {
+      setShareStatus({
+        state: "error",
+        message: (err as Error).message || "Sharing failed.",
+      });
+    }
+  };
+
+  const copyLink = async (link: string) => {
+    await navigator.clipboard.writeText(link);
+    setCopied(true);
   };
 
   const toggleFileExclusion = (fileName: string) => {
@@ -190,53 +273,131 @@ function Merge() {
     e.preventDefault();
   });
 
+  const SortSelect = () => (
+    <label>
+      Sort by:{" "}
+      <select
+        value={sortBy()}
+        onChange={(e) =>
+          setSortBy(e.currentTarget.value as "count" | "name" | "order")
+        }
+      >
+        <option value="count">Count</option>
+        <option value="name">Name</option>
+        <option value="order">Field Guide Order</option>
+      </select>
+    </label>
+  );
+
   return (
     <div class="container-m">
       <h1>Merge Page</h1>
-      <div class="callout secondary">
-        Merge NFC results in the Audacity Label format.
-        <div class="sidecar-end">
-          <input type="file" id="files" onChange={filesChanged} multiple />
-          <div>
-            <button
-              onClick={() => {
-                setResults([]);
-                setProcessedFiles([]);
-                setExcludedFiles(new Set<string>());
-                setProcessingFiles(new Set<string>());
-                setFileTexts({});
-                setFileWarnings({});
-                setEditingName(null);
-              }}
-            >
-              Clear
-            </button>
-          </div>
-          <label>
-            <input
-              type="checkbox"
-              checked={combine()}
-              onChange={(e) => setCombine(e.currentTarget.checked)}
-            />
-            {combine()
-              ? "Merging NFC groups with parents"
-              : "Not merging NFC groups with parents"}{" "}
-          </label>
-          <label>
-            Sort by:{" "}
-            <select
-              value={sortBy()}
-              onChange={(e) =>
-                setSortBy(e.currentTarget.value as "count" | "name" | "order")
-              }
-            >
-              <option value="count">Count</option>
-              <option value="name">Name</option>
-              <option value="order">Field Guide Order</option>
-            </select>
-          </label>
+      <Show when={loadingShare()}>
+        <div class="callout">Loading shared results...</div>
+      </Show>
+      <Show when={loadError()}>
+        <div class="callout warning">
+          {loadError()} <a href="/nfc/merge">Start your own merge</a>
         </div>
-      </div>
+      </Show>
+      <Show when={shared()}>
+        {(s) => (
+          <div class="callout secondary">
+            Viewing shared results (read-only) · shared{" "}
+            {new Date(s().createdAt).toLocaleString()} ·{" "}
+            {s().combine
+              ? "NFC groups merged with parents"
+              : "NFC groups not merged with parents"}
+            <div class="sidecar-end">
+              <a
+                href="/nfc/merge"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate("/nfc/merge");
+                }}
+              >
+                Start your own merge
+              </a>
+              <SortSelect />
+            </div>
+          </div>
+        )}
+      </Show>
+      <Show when={!shared() && !loadingShare() && !loadError()}>
+        <div class="callout secondary">
+          Merge NFC results in the Audacity Label format.
+          <div class="sidecar-end">
+            <input type="file" id="files" onChange={filesChanged} multiple />
+            <div class="cluster">
+              <button
+                onClick={() => {
+                  setResults([]);
+                  setProcessedFiles([]);
+                  setExcludedFiles(new Set<string>());
+                  setProcessingFiles(new Set<string>());
+                  setFileTexts({});
+                  setFileWarnings({});
+                  setEditingName(null);
+                  setShareStatus({ state: "idle" });
+                }}
+              >
+                Clear
+              </button>
+              <button
+                onClick={share}
+                disabled={
+                  display().length === 0 ||
+                  processingFiles().size > 0 ||
+                  shareStatus().state === "uploading"
+                }
+              >
+                {shareStatus().state === "uploading" ? "Sharing..." : "Share"}
+              </button>
+            </div>
+            <label>
+              <input
+                type="checkbox"
+                checked={combine()}
+                onChange={(e) => setCombine(e.currentTarget.checked)}
+              />
+              {combine()
+                ? "Merging NFC groups with parents"
+                : "Not merging NFC groups with parents"}{" "}
+            </label>
+            <SortSelect />
+          </div>
+          <Show when={shareStatus().state === "ready" && shareStatus()}>
+            {(status) => {
+              const link = () => (status() as { link: string }).link;
+              return (
+                <div class="sidecar-end">
+                  <label>
+                    Share link (anyone with it can view these results):
+                    <input
+                      type="text"
+                      readOnly
+                      value={link()}
+                      onFocus={(e) => e.currentTarget.select()}
+                    />
+                  </label>
+                  <div>
+                    <button onClick={() => copyLink(link())}>
+                      {copied() ? "Copied" : "Copy"}
+                    </button>
+                  </div>
+                </div>
+              );
+            }}
+          </Show>
+          <Show when={shareStatus().state === "error" && shareStatus()}>
+            {(status) => (
+              <div class="callout warning">
+                {(status() as { message: string }).message}
+              </div>
+            )}
+          </Show>
+        </div>
+      </Show>
       {processingFiles().size > 0 && (
         <div class="callout">
           Processing {processingFiles().size} file
@@ -258,7 +419,7 @@ function Merge() {
         </div>
       </Show>
       <ul class="list-inline">
-        <For each={processedFiles().sort()}>
+        <For each={shownFiles()}>
           {(f) => (
             <li
               style={{
@@ -269,14 +430,16 @@ function Merge() {
               }}
             >
               <label>
-                <input
-                  type="checkbox"
-                  checked={!excludedFiles().has(f)}
-                  onChange={() => toggleFileExclusion(f)}
-                />
+                <Show when={!shared()}>
+                  <input
+                    type="checkbox"
+                    checked={!excludedFiles().has(f)}
+                    onChange={() => toggleFileExclusion(f)}
+                  />
+                </Show>
                 <div class="flex direction-column">
                   <Sparkline
-                    data={fileBucketCounts()[f]}
+                    data={bucketCounts()[f] ?? {}}
                     maxBucketCount={maxBucketCount()}
                   />
                   <small>{f}</small>
@@ -333,17 +496,19 @@ function Merge() {
                             <details>
                               <summary>
                                 {r.name}{" "}
-                                <button
-                                  class="size-xs plain"
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    setEditingName(r.name);
-                                    setEditValue(r.name);
-                                  }}
-                                >
-                                  ✎
-                                </button>
+                                <Show when={!shared()}>
+                                  <button
+                                    class="size-xs plain"
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      setEditingName(r.name);
+                                      setEditValue(r.name);
+                                    }}
+                                  >
+                                    ✎
+                                  </button>
+                                </Show>
                               </summary>
                               <For each={r.times?.sort() ?? []}>
                                 {(t) => (
@@ -383,14 +548,17 @@ function Merge() {
                       <td>{r.totalCount}</td>
                       <td>{r.audio ? "Yes" : "No"}</td>
                       <td>
-                        
                         {r.fullBird &&
                           (shortBirdCodes.find(
                             (sb) => sb.SPEC === r.fullBird?.SPEC,
                           ) ? (
                             <span>{r.fullBird.COMMONNAME}</span>
                           ) : (
-                            <BirdItemPopper bird={r.fullBird} linkText={r.fullBird.COMMONNAME} elementType="span"/>
+                            <BirdItemPopper
+                              bird={r.fullBird}
+                              linkText={r.fullBird.COMMONNAME}
+                              elementType="span"
+                            />
                           ))}
                         {r.nfcGroup && (
                           <a target="_blank" href={`/nfc#${r.name}`}>
@@ -469,9 +637,15 @@ function Merge() {
             file name, it will be combined with the existing counts.
           </p>
           <p>
-            Note: All processing is done on your computer, and is never
-            uploaded. I have enough of my own NFCs to comb through... I don't
-            want yours.
+            Note: All processing is done on your computer, and is never uploaded
+            unless you click Share. I have enough of my own NFCs to comb
+            through... I don't want yours.
+          </p>
+          <p>
+            Share encrypts the aggregated results in your browser before
+            uploading them. The key is only in the share link&apos;s hash, which
+            is never sent to the server, so only people with the link can read
+            them.
           </p>
         </section>
       </Show>
