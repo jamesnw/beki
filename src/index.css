@@ -138,3 +138,9 @@ body {
 		rotate: 0deg;
 	}
 }
+
+
+::highlight(search-results) {
+   background-color: light-dark(var(--color-cyan-20), white);
+   color: light-dark(white, var(--color-cyan-20));
+}

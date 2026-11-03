@@ -10,16 +10,13 @@ interface NFCBirdListItemProps {
 }
 
 export default function BirdItemPopper(props: NFCBirdListItemProps) {
-  const { bird, linkText, postText } = props;
+  const { bird, linkText } = props;
   return (
     <Dynamic component={props.elementType || "li"} data-birdlink>
       <a href={`/bird/${bird.SPEC}`} interestfor={bird.SPEC}>
         {linkText}
       </a>{" "}
-      {postText && <>
-        {postText}
-      </>
-        }
+      {props.postText}
       <Show when={bird.EBIRD || bird.OLDBIRD}>
       <div popover="hint" id={bird.SPEC} class="callout vivid">
         <div>
